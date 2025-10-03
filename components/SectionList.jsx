@@ -21,6 +21,7 @@ import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
 import { toast } from 'sonner'
 import { ApiDelete } from '@/Utils/axiosFunctions'
+import Swal from 'sweetalert2'
 
 export default function SectionList({ sectionData, screenData }) {
     console.log('sectionData', sectionData)
@@ -52,14 +53,53 @@ export default function SectionList({ sectionData, screenData }) {
     }
 
     const onDelete = async (data) => {
-        // console.log('dtaa', data)
-        // return
-        try {
-            const deleteResponse = await ApiDelete(`admin/sections/dev/?mainThemeId=${screenid}&mainScreenType=${screenData}&mainSectionName=${data?.name}`)
-            toast.success(deleteResponse?.message || 'Section deleted successfully')
-            router.refresh()
-        } catch (error) {
-            toast.error(error?.message || 'Error deleting section')
+        // Show SweetAlert confirmation
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you want to delete section "${data.name}"?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true
+        })
+
+        // If user confirms deletion
+        if (result.isConfirmed) {
+            try {
+                // Show loading state
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while we delete the section.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading()
+                    }
+                })
+
+                const deleteResponse = await ApiDelete(`admin/sections/dev/?mainThemeId=${screenid}&mainScreenType=${screenData}&mainSectionName=${data?.name}`)
+
+                // Show success message
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: deleteResponse?.message || 'Section has been deleted successfully.',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                })
+
+                // Refresh the page data
+                router.refresh()
+            } catch (error) {
+                // Show error message
+                Swal.fire({
+                    title: 'Error!',
+                    text: error?.message || 'Error deleting section',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                })
+            }
         }
     }
 
@@ -133,13 +173,12 @@ export default function SectionList({ sectionData, screenData }) {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="size-8 p-0 cursor-pointer"
+                                            className="size-8 p-0 cursor-pointer hover:bg-blue-50 hover:border-blue-300 group transition-all duration-200"
                                             onClick={() => {
                                                 onEdit(sectionItem)
-
                                             }}
                                         >
-                                            <Pencil className="size-4" />
+                                            <Pencil className="size-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
                                         </Button>
                                         <Button
                                             variant="outline"
@@ -147,17 +186,17 @@ export default function SectionList({ sectionData, screenData }) {
                                             onClick={() => {
                                                 onDelete(sectionItem)
                                             }}
-                                            className="size-8 p-0 cursor-pointer"
+                                            className="size-8 p-0 cursor-pointer hover:bg-red-50 hover:border-red-300 group transition-all duration-200"
                                         >
-                                            <Trash className="size-4" />
+                                            <Trash className="size-4 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />
                                         </Button>
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="size-8 p-0 cursor-pointer"
+                                            className="size-8 p-0 cursor-pointer hover:bg-green-50 hover:border-green-300 group transition-all duration-200"
                                             onClick={() => router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`)}
                                         >
-                                            <View className="size-4" />
+                                            <View className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
                                         </Button>
                                     </div>
                                 </TableCell>
