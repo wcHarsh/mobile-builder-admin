@@ -2,7 +2,7 @@ import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import { useParams, useRouter } from 'next/navigation'
@@ -33,6 +33,7 @@ const sectionSchema = yup.object({
 export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, isEdit, screenData }) {
     const { screenid, section } = useParams()
     const router = useRouter()
+    const [selectedType, setSelectedType] = useState('')
     console.log('screenid, section', screenid, section)
     const {
         register,
@@ -47,10 +48,32 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
             name: '',
             icon: '',
             description: '',
-            is_deleted: false,
+            is_deleted: true,
             is_visible: true,
         }
     })
+
+    // Define name options based on type
+    const getNameOptions = (type) => {
+        if (type === 'header') {
+            return [{ value: 'Header', label: 'Header' }]
+        } else if (type === 'template') {
+            return [
+                { value: 'Slideshow', label: 'Slideshow' },
+                { value: 'Marquee', label: 'Marquee' },
+                { value: 'Circle image slider', label: 'Circle image slider' },
+                { value: 'Featured collection', label: 'Featured collection' },
+                { value: 'Product list', label: 'Product list' },
+                { value: 'Collection Showcase', label: 'Collection Showcase' },
+                { value: 'Image banner', label: 'Image banner' },
+                { value: 'Product Highlights', label: 'Product Highlights' },
+                { value: 'Hot Deal Carousel', label: 'Hot Deal Carousel' },
+                { value: 'Rich text', label: 'Rich text' },
+                { value: 'Image slider', label: 'Image slider' }
+            ]
+        }
+        return []
+    }
 
     useEffect(() => {
         if (isOpen) {
@@ -62,8 +85,10 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
                 setValue('type', templateData.type || '')
                 setValue('is_deleted', templateData.is_deleted || false)
                 setValue('is_visible', templateData.is_visible || true)
+                setSelectedType(templateData.type || '')
             } else {
                 reset()
+                setSelectedType('')
             }
         }
     }, [isOpen, isEdit, templateData, setValue, reset])
@@ -122,6 +147,10 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
                                 </label>
                                 <select
                                     {...register('type')}
+                                    onChange={(e) => {
+                                        setSelectedType(e.target.value)
+                                        setValue('name', '') // Reset name when type changes
+                                    }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 >
                                     <option value="" disabled>Select type</option>
@@ -138,12 +167,20 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Name *
                                 </label>
-                                <input
-                                    type="text"
+                                <select
                                     {...register('name')}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Enter section name"
-                                />
+                                    disabled={!selectedType}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                >
+                                    <option value="" disabled>
+                                        {selectedType ? 'Select name' : 'Please select type first'}
+                                    </option>
+                                    {getNameOptions(selectedType).map((option) => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
                                 {errors.name && (
                                     <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
                                 )}

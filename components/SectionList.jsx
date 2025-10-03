@@ -33,7 +33,7 @@ export default function SectionList({ sectionData, screenData }) {
         name: '',
         icon: '',
         description: '',
-        is_deleted: false,
+        is_deleted: true,
         is_visible: true
     })
     const [isEdit, setIsEdit] = useState(false)
