@@ -1,6 +1,5 @@
 'use client'
-import React from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState } from 'react'
 import {
     Table,
     TableBody,
@@ -9,16 +8,19 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import {
     Home,
     Eye,
-    Edit
+    Edit,
+    Pencil
 } from 'lucide-react'
+import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
+import { Button } from './ui/button'
 
-export default function SectionList({ section, sectionData }) {
-    const router = useRouter()
-
+export default function SectionList({ sectionData }) {
+    let [isOpen, setIsOpen] = useState(true)
+    const [templateData, setTemplateData] = useState(null)
+    const [isEdit, setisEdit] = useState(false)
     if (!sectionData || sectionData.length === 0) {
         return (
             <div className="space-y-4">
@@ -88,9 +90,9 @@ export default function SectionList({ section, sectionData }) {
                                             variant="outline"
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer"
-                                        // onClick={() => router.push(`/themes/${sectionItem.screenId}/${sectionItem.id}`)}
+                                            onClick={() => { setIsOpen(true), setTemplateData(sectionItem), setisEdit(true) }}
                                         >
-                                            <Eye className="size-4" />
+                                            <Pencil className="size-4" />
                                         </Button>
                                         <Button
                                             variant="outline"
@@ -107,6 +109,7 @@ export default function SectionList({ section, sectionData }) {
                     </TableBody>
                 </Table>
             </div>
+            <SectionAddEditModal {...{ isOpen, setIsOpen, templateData, isEdit }} />
         </div>
     )
 }
