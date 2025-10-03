@@ -17,26 +17,38 @@ import {
 import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
 
-export default function SectionList({ sectionData }) {
-    let [isOpen, setIsOpen] = useState(true)
-    const [templateData, setTemplateData] = useState(null)
-    const [isEdit, setisEdit] = useState(false)
-    if (!sectionData || sectionData.length === 0) {
-        return (
-            <div className="space-y-4">
-                <div className="bg-white border border-gray-200 rounded-lg p-8 text-center">
-                    <Home className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Sections Found</h3>
-                    <p className="text-gray-600">No sections are available for this screen.</p>
-                </div>
-            </div>
-        )
-    }
+export default function SectionList({ sectionData, screenData }) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [templateData, setTemplateData] = useState({
+        name: '',
+        description: '',
 
+    })
+    const [isEdit, setIsEdit] = useState(false)
+
+    const onEdit = (data) => {
+        console.log('data', data)
+        setIsOpen(true)
+        setTemplateData({
+            name: data.name,
+            description: data.description,
+        })
+        setIsEdit(true)
+    }
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Sections</h2>
+                <Button
+                    onClick={() => {
+                        setIsOpen(true)
+                        setTemplateData(null)
+                        setIsEdit(false)
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700"
+                >
+                    Add New Section
+                </Button>
             </div>
             <input
                 type="text"
@@ -90,7 +102,10 @@ export default function SectionList({ sectionData }) {
                                             variant="outline"
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer"
-                                            onClick={() => { setIsOpen(true), setTemplateData(sectionItem), setisEdit(true) }}
+                                            onClick={() => {
+                                                onEdit(sectionItem)
+
+                                            }}
                                         >
                                             <Pencil className="size-4" />
                                         </Button>
@@ -109,7 +124,7 @@ export default function SectionList({ sectionData }) {
                     </TableBody>
                 </Table>
             </div>
-            <SectionAddEditModal {...{ isOpen, setIsOpen, templateData, isEdit }} />
+            <SectionAddEditModal {...{ isOpen, setIsOpen, templateData, isEdit, screenData }} />
         </div>
     )
 }

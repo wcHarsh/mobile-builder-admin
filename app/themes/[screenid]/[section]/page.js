@@ -8,12 +8,14 @@ export default async function Page({ params }) {
 
     // Fetch data on the server
     const res = await ApiGet(`admin/sections?screenId=${section}`)
+    const screen = await ApiGet(`admin/screens/single?id=${section}`)
     const sectionData = res?.data || []
-
+    const screenData = screen?.data?.type || ''
+    console.log('screenData', screenData)
     // Pass fetched data as props to client component
     return (
         <Suspense fallback={<LoadingSpinner />}>
-            <SectionList {...{ section, sectionData }} />
+            <SectionList {...{ section, sectionData, screenData }} />
         </Suspense>
     )
 }
