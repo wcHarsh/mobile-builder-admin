@@ -4,7 +4,7 @@ import { ApiGet } from '@/Utils/axiosFunctions'
 import { Suspense } from 'react'
 
 export default async function Page({ params }) {
-    const { screenid, section } = params
+    const { section } = await params
 
     // Fetch data on the server
     const res = await ApiGet(`admin/sections?screenId=${section}`)
