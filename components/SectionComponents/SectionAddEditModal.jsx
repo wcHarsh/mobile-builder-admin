@@ -4,23 +4,35 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
-import { ApiPut } from '@/Utils/axiosFunctions'
-import { useParams } from 'next/navigation'
+import { ApiPost, ApiPut } from '@/Utils/axiosFunctions'
+import { useParams, useRouter } from 'next/navigation'
 
 // Yup validation schema
 const sectionSchema = yup.object({
+    type: yup
+        .string()
+        .required('Type is required'),
     name: yup
         .string()
         .required('Name is required')
         .min(2, 'Name must be at least 2 characters')
         .max(50, 'Name must be less than 50 characters'),
+    icon: yup
+        .string()
+        .required('Icon is required')
+        .min(2, 'Icon must be at least 2 characters')
+        .max(50, 'Icon must be less than 50 characters'),
     description: yup
         .string()
         .max(200, 'Description must be less than 200 characters'),
+    is_deleted: yup
+        .boolean()
+        .required('Is deleted is required'),
 })
 
 export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, isEdit, screenData }) {
     const { screenid, section } = useParams()
+    const router = useRouter()
     console.log('screenid, section', screenid, section)
     const {
         register,
@@ -31,48 +43,57 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
     } = useForm({
         resolver: yupResolver(sectionSchema),
         defaultValues: {
+            type: '',
             name: '',
+            icon: '',
             description: '',
+            is_deleted: false,
+            is_visible: true,
         }
     })
+
     useEffect(() => {
-        if (isEdit) {
-            setValue('name', templateData?.name || '')
-            setValue('description', templateData?.description || '')
+        if (isOpen) {
+            if (isEdit && templateData) {
+                // Populate form with existing data
+                setValue('name', templateData.name || '')
+                setValue('icon', templateData.icon || '')
+                setValue('description', templateData.description || '')
+                setValue('type', templateData.type || '')
+                setValue('is_deleted', templateData.is_deleted || false)
+                setValue('is_visible', templateData.is_visible || true)
+            } else {
+                reset()
+            }
         }
-    }, [isEdit, isOpen, templateData, setValue])
-
-    // // Reset form when modal opens/closes or templateData changes
-    // useEffect(() => {
-    //     if (isOpen) {
-    //         if (isEdit && templateData) {
-    //             // Populate form with existing data
-    //             setValue('name', templateData.name || '')
-    //             setValue('description', templateData.description || '')
-
-    //         } else {
-    //             // Reset form for new section
-    //             reset()
-    //         }
-    //     }
-    // }, [isOpen, isEdit, templateData, setValue, reset])
+    }, [isOpen, isEdit, templateData, setValue, reset])
 
     const onSubmit = async (data) => {
         const payload = {
             mainThemeId: Number(screenid),
             mainScreenType: screenData,
-            mainSectionName: templateData?.name,
+            ...(isEdit && templateData && { mainSectionName: templateData?.name }),
             name: data.name,
             description: data.description,
+            icon: data.icon,
+            type: data.type,
+            is_deleted: data?.is_deleted,
+            is_visible: data?.is_visible
         }
-        console.log('payload', templateData, payload)
+        console.log('payload', payload)
         // return
         try {
-            const response = await ApiPut(`admin/sections/dev`, payload)
+            if (isEdit) {
+                const updateResponse = await ApiPut(`admin/sections/dev/${templateData?.id}`, payload)
+                toast.success(updateResponse?.message || 'Section updated successfully')
+            } else {
+                const addResponse = await ApiPost(`admin/sections/dev`, payload)
+                toast.success(addResponse?.message || 'Section added successfully')
+            }
             setIsOpen(false)
-            toast.success(response?.message || 'Section created successfully')
+            router.refresh()
         } catch (error) {
-            toast.error(error?.message || 'Error creating section')
+            toast.error(error?.message || 'Error updating section')
         }
     }
 
@@ -94,6 +115,24 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
                         </DialogTitle>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            {/* Type Field */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Type *
+                                </label>
+                                <select
+                                    {...register('type')}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                >
+                                    <option value="" disabled>Select type</option>
+                                    <option value="header">Header</option>
+                                    <option value="template">Template</option>
+                                </select>
+
+                            </div>
+                            {errors.type && (
+                                <p className="mt-1 text-sm text-red-600">{errors.type.message}</p>
+                            )}
                             {/* Name Field */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -126,6 +165,49 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
                                 )}
                             </div>
 
+                            {/* Icon Field */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    Icon
+                                </label>
+                                <input
+                                    type="text"
+                                    {...register('icon')}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Enter section icon"
+                                />
+                            </div>
+                            {errors.icon && (
+                                <p className="mt-1 text-sm text-red-600">{errors.icon.message}</p>
+                            )}
+                            {/* Is deleted Field */}
+                            <div className='flex items-center gap-2'>
+                                <input
+                                    type="checkbox"
+                                    {...register('is_deleted')}
+                                />
+                                <label className="block text-sm font-medium text-gray-700 ">
+                                    section Is deleted
+                                </label>
+                            </div>
+                            {errors.is_deleted && (
+                                <p className="mt-1 text-sm text-red-600">{errors.is_deleted.message}</p>
+                            )}
+
+                            {/* Is visible Field */}
+
+                            <div className='flex items-center gap-2'>
+                                <input
+                                    type="checkbox"
+                                    {...register('is_visible')}
+                                />
+                                <label className="block text-sm font-medium text-gray-700 ">
+                                    section Is visible
+                                </label>
+                            </div>
+                            {errors.is_visible && (
+                                <p className="mt-1 text-sm text-red-600">{errors.is_visible.message}</p>
+                            )}
 
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-3 pt-4">

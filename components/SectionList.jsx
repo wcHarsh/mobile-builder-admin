@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import {
     Table,
     TableBody,
@@ -12,17 +13,26 @@ import {
     Home,
     Eye,
     Edit,
-    Pencil
+    Pencil,
+    Trash,
+    View
 } from 'lucide-react'
 import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
+import { toast } from 'sonner'
+import { ApiDelete } from '@/Utils/axiosFunctions'
 
 export default function SectionList({ sectionData, screenData }) {
+    const router = useRouter()
+    const { screenid } = useParams()
     const [isOpen, setIsOpen] = useState(false)
     const [templateData, setTemplateData] = useState({
+        type: '',
         name: '',
+        icon: '',
         description: '',
-
+        is_deleted: false,
+        is_visible: true
     })
     const [isEdit, setIsEdit] = useState(false)
 
@@ -30,11 +40,28 @@ export default function SectionList({ sectionData, screenData }) {
         console.log('data', data)
         setIsOpen(true)
         setTemplateData({
+            type: data.type,
             name: data.name,
+            icon: data.icon,
             description: data.description,
+            is_deleted: data.is_deleted,
+            is_visible: data.is_visible,
         })
         setIsEdit(true)
     }
+
+    const onDelete = async (data) => {
+        // console.log('dtaa', data)
+        // return
+        try {
+            const deleteResponse = await ApiDelete(`admin/sections/dev/?mainThemeId=${screenid}&mainScreenType=${screenData}&mainSectionName=${data?.name}`)
+            toast.success(deleteResponse?.message || 'Section deleted successfully')
+            router.refresh()
+        } catch (error) {
+            toast.error(error?.message || 'Error deleting section')
+        }
+    }
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -45,7 +72,7 @@ export default function SectionList({ sectionData, screenData }) {
                         setTemplateData(null)
                         setIsEdit(false)
                     }}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700"
                 >
                     Add New Section
                 </Button>
@@ -112,10 +139,20 @@ export default function SectionList({ sectionData, screenData }) {
                                         <Button
                                             variant="outline"
                                             size="sm"
+                                            onClick={() => {
+                                                onDelete(sectionItem)
+                                            }}
+                                            className="size-8 p-0 cursor-pointer"
+                                        >
+                                            <Trash className="size-4" />
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
                                             className="size-8 p-0 cursor-pointer"
                                         // onClick={() => router.push(`/themes/${sectionItem.screenId}/${sectionItem.id}`)}
                                         >
-                                            <Edit className="size-4" />
+                                            <View className="size-4" />
                                         </Button>
                                     </div>
                                 </TableCell>
