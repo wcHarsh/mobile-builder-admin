@@ -23,6 +23,7 @@ import { toast } from 'sonner'
 import { ApiDelete } from '@/Utils/axiosFunctions'
 
 export default function SectionList({ sectionData, screenData }) {
+    console.log('sectionData', sectionData)
     const router = useRouter()
     const { screenid } = useParams()
     const [isOpen, setIsOpen] = useState(false)
@@ -87,6 +88,7 @@ export default function SectionList({ sectionData, screenData }) {
                     <TableHeader>
                         <TableRow className="bg-gray-50">
                             <TableHead className="font-semibold text-gray-700">Screen ID</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Section ID</TableHead>
                             <TableHead className="font-semibold text-gray-700">Type</TableHead>
                             <TableHead className="font-semibold text-gray-700">Name</TableHead>
                             <TableHead className="font-semibold text-gray-700">Description</TableHead>
@@ -100,6 +102,9 @@ export default function SectionList({ sectionData, screenData }) {
                             <TableRow key={sectionItem.id} className="hover:bg-gray-50 border-b border-gray-100">
                                 <TableCell className="font-medium text-gray-900">
                                     {sectionItem.screenId}
+                                </TableCell>
+                                <TableCell className="font-medium text-gray-900">
+                                    {sectionItem.id}
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm text-gray-600 capitalize">
@@ -150,7 +155,7 @@ export default function SectionList({ sectionData, screenData }) {
                                             variant="outline"
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer"
-                                        // onClick={() => router.push(`/themes/${sectionItem.screenId}/${sectionItem.id}`)}
+                                            onClick={() => router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`)}
                                         >
                                             <View className="size-4" />
                                         </Button>

@@ -4,7 +4,7 @@ import { ApiGet } from '@/Utils/axiosFunctions'
 import { Suspense } from 'react'
 
 export default async function Page({ params }) {
-    const { section } = await params
+    const { section, screenid } = await params
 
     // Fetch data on the server
     const res = await ApiGet(`admin/sections?screenId=${section}`)
@@ -15,7 +15,7 @@ export default async function Page({ params }) {
     // Pass fetched data as props to client component
     return (
         <Suspense fallback={<LoadingSpinner />}>
-            <SectionList {...{ section, sectionData, screenData }} />
+            <SectionList {...{ section, sectionData, screenData, screenid }} />
         </Suspense>
     )
 }
