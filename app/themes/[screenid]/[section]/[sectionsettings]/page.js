@@ -1,7 +1,17 @@
-import React from 'react'
+import LoadingSpinner from '@/components/LoadingSpinner'
+import SectionSettings from '@/components/SectionSettings'
+import { ApiGet } from '@/Utils/axiosFunctions'
+import React, { Suspense } from 'react'
 
-export default function page() {
+export default async function page({ params }) {
+    const { section, screenid, sectionsettings } = await params
+    const res = await ApiGet(`admin/sections/settings?sectionId=${sectionsettings}`)
+
+    const sectionSettingsData = res?.data || []
+    console.log('sectionSettingsData', sectionsettings, sectionSettingsData)
     return (
-        <div>page</div>
+        <Suspense fallback={<LoadingSpinner />}>
+            <SectionSettings {...{ sectionSettingsData, section, screenid }} />
+        </Suspense>
     )
 }
