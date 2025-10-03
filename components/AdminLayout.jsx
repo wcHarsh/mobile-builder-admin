@@ -15,12 +15,12 @@ const AdminLayout = ({ children }) => {
     }
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
+        <div className="flex bg-gray-50 min-h-screen">
             <SidePanel isOpen={sidebarOpen} onClose={closeSidebar} />
             <div className="w-full">
                 <TopBar onMenuToggle={toggleSidebar} />
                 <main className="flex-1">
-                    <div className="py-6">
+                    <div className="h-[calc(100vh-100px)]">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             {children}
                         </div>
