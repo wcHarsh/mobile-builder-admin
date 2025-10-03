@@ -4,6 +4,7 @@ const nextConfig = {
         domains: ['static-mobile.onecommerce.io'],
         unoptimized: true,
     },
+    reactStrictMode: false,
 };
 
 export default nextConfig;

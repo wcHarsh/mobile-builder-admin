@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AdminLayout from "@/components/AdminLayout";
-
+import { Toaster } from 'sonner';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -25,6 +25,7 @@ export default function RootLayout({ children }) {
       >
         <AdminLayout>
           {children}
+          <Toaster richColors />
         </AdminLayout>
       </body>
     </html>

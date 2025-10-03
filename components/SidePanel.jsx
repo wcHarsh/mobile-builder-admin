@@ -9,7 +9,7 @@ const SidePanel = ({ isOpen, onClose }) => {
     const menuItems = [
         {
             name: 'Dashboard',
-            href: '/',
+            href: '/dashboard',
             icon: (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
@@ -95,7 +95,7 @@ const SidePanel = ({ isOpen, onClose }) => {
                 <nav className="mt-6 px-3 min-h-screen">
                     <div className="space-y-1">
                         {menuItems.map((item) => {
-                            const isActive = pathname === item.href
+                            const isActive = pathname && pathname?.includes(item.href)
                             return (
                                 <Link
                                     key={item.name}
