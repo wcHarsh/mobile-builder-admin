@@ -109,7 +109,7 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
         // return
         try {
             if (isEdit) {
-                const updateResponse = await ApiPut(`admin/sections/dev/${templateData?.id}`, payload)
+                const updateResponse = await ApiPut(`admin/sections/dev`, payload)
                 toast.success(updateResponse?.message || 'Section updated successfully')
             } else {
                 const addResponse = await ApiPost(`admin/sections/dev`, payload)

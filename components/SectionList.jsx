@@ -25,6 +25,7 @@ import Swal from 'sweetalert2'
 
 export default function SectionList({ sectionData, screenData }) {
     console.log('sectionData', sectionData)
+    console.log('screenData', screenData)
     const router = useRouter()
     const { screenid } = useParams()
     const [isOpen, setIsOpen] = useState(false)
@@ -194,7 +195,10 @@ export default function SectionList({ sectionData, screenData }) {
                                             variant="outline"
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer hover:bg-green-50 hover:border-green-300 group transition-all duration-200"
-                                            onClick={() => router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`)}
+                                            onClick={() => {
+                                                router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`),
+                                                    localStorage.setItem('mainSectionName', sectionItem.name)
+                                            }}
                                         >
                                             <View className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
                                         </Button>

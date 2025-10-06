@@ -53,7 +53,7 @@ export default function ScreenList({ screenid, screenData }) {
                                     {screen.name}
                                 </TableCell>
                                 <TableCell>
-                                    <span className="text-sm text-gray-600 capitalize">
+                                    <span className="text-sm text-gray-600">
                                         {screen.type}
                                     </span>
                                 </TableCell>
@@ -64,7 +64,10 @@ export default function ScreenList({ screenid, screenData }) {
                                             variant="outline"
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer"
-                                            onClick={() => router.push(`/themes/${screenid}/${screen.id}`)}
+                                            onClick={() => {
+                                                router.push(`/themes/${screenid}/${screen.id}`),
+                                                    localStorage.setItem('mainScreenType', screen.type)
+                                            }}
                                         >
                                             <Edit className="size-4" />
                                         </Button>
