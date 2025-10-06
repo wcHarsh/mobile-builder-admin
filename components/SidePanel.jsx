@@ -125,7 +125,7 @@ const SidePanel = ({ isOpen, onClose }) => {
                         </div>
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
-                            <p className="text-xs text-gray-500 truncate">admin@example.com</p>
+                            <p className="text-xs text-gray-500 truncate">admin@admin.com</p>
                         </div>
                     </div>
                 </div>

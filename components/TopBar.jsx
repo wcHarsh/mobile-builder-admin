@@ -136,7 +136,7 @@ const TopBar = ({ onMenuToggle }) => {
                         </div>
                         <div className="hidden md:block text-left">
                             <p className="text-sm font-medium text-gray-900">Admin User</p>
-                            <p className="text-xs text-gray-500">admin@example.com</p>
+                            <p className="text-xs text-gray-500">admin@admin.com</p>
                         </div>
                         <svg className="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

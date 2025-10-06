@@ -74,7 +74,7 @@ export default function LoginPage() {
                         height={400}
                         src="/assets/webcontrive.webp"
                         alt="Login illustration"
-                        className="object-cover w-full h-full"
+                        className="object-cover size-full"
                         priority
                         onError={(e) => {
                             console.error('Image failed to load:', e)
@@ -89,13 +89,13 @@ export default function LoginPage() {
                     {/* Header */}
                     <div className="mb-8">
                         {/* App Logo */}
-                        <div className="flex justify-center mb-6">
-                            {/* <img
+                        {/* <div className="flex justify-center mb-6">
+                            <img
                                 src="https://webcontrive.com/cdn/shop/files/footer_logo.svg?v=1686044046&width=760"
                                 alt="App Logo"
                                 className="h-auto w-auto"
-                            /> */}
-                        </div>
+                            />
+                        </div> */}
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
                             Welcome back!
                         </h1>

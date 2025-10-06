@@ -104,7 +104,7 @@ export const getHttpOptions = (options = defaultHeaders) => {
       try {
         const { cookies } = require('next/headers');
         const cookieStore = cookies();
-        const authToken = cookieStore.get('auth-token')?.value;
+        const authToken = cookieStore?.get('auth-token')?.value;
 
         if (authToken) {
           // Create a minimal userData object with the token
