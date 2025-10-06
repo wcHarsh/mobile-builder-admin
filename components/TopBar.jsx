@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Logout } from '@/Utils/commonFunctions'
 
 const TopBar = ({ onMenuToggle }) => {
     const router = useRouter()
@@ -9,14 +10,7 @@ const TopBar = ({ onMenuToggle }) => {
     const [showUserMenu, setShowUserMenu] = useState(false)
 
     const handleLogout = () => {
-        // Clear authentication cookie
-        document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-        localStorage.removeItem('mobile_builder_user_data')
-        localStorage.removeItem('mainBlockName')
-        localStorage.removeItem('mainScreenType')
-        localStorage.removeItem('mainSectionName')
-        toast.success('Logged out successfully')
-        router.push('/login')
+        Logout()
     }
 
     const notifications = [
