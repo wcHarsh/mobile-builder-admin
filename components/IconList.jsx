@@ -17,7 +17,6 @@ import Swal from 'sweetalert2'
 import IconAddEditModal from './IconComponents/IconAddEditModal'
 
 export default function IconList({ iconData }) {
-    console.log('iconData', iconData)
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [templateData, setTemplateData] = useState({
