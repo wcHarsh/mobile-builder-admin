@@ -2,7 +2,7 @@ import { CardSkeleton } from "@/components/LoadingSpinner";
 import Theme from "@/components/Theme";
 import { ApiGet } from "@/Utils/axiosFunctions";
 import { Suspense } from "react";
-
+export const dynamic = "force-dynamic";
 export default async function ThemesPage() {
 
     const res = await ApiGet(`admin/themes`)
