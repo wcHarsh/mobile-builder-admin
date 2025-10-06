@@ -13,12 +13,13 @@ import { Pencil, Trash, View, GripVertical } from 'lucide-react'
 import SectionSettingsAddEditModal from './SectionComponents/SectionSettingsAddEditModal'
 import { toast } from 'sonner'
 import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 
 export default function SectionSettings({ sectionSettingsData, section, screenid }) {
     console.log('sectionSettingsData', sectionSettingsData)
     const router = useRouter()
+    const { sectionsettings } = useParams()
     const [isOpen, setIsOpen] = useState(false)
     const [templateData, setTemplateData] = useState({
         label: '',
@@ -34,7 +35,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
     const [isEdit, setIsEdit] = useState(false)
     const [draggedItem, setDraggedItem] = useState(null)
     const [settings, setSettings] = useState(sectionSettingsData || [])
-
+    console.log('settings', settings)
     // Update settings when sectionSettingsData changes
     React.useEffect(() => {
         setSettings(sectionSettingsData || [])
@@ -192,13 +193,13 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                     Add New Setting
                 </Button>
             </div>
-
-            <input
-                type="text"
-                placeholder="Search settings..."
-                className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg"
-            />
-
+            <div className='flex items-center justify-between'>
+                <input
+                    type="text"
+                    placeholder="Search settings..."
+                    className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg"
+                />
+            </div>
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <Table>
                     <TableHeader>

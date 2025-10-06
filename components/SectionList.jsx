@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 import { ApiDelete } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 
-export default function SectionList({ sectionData, screenData }) {
+export default function SectionList({ sectionData, screenData, section }) {
     console.log('sectionData', sectionData)
     console.log('screenData', screenData)
     const router = useRouter()
@@ -120,11 +120,14 @@ export default function SectionList({ sectionData, screenData }) {
                     Add New Section
                 </Button>
             </div>
-            <input
-                type="text"
-                placeholder="Search sections..."
-                className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg"
-            />
+            <div className='flex items-center justify-between'>
+                <input
+                    type="text"
+                    placeholder="Search sections..."
+                    className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg"
+                />
+            </div>
+
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
                 <Table>
                     <TableHeader>
@@ -163,12 +166,14 @@ export default function SectionList({ sectionData, screenData }) {
                                     {sectionItem.orderIndex}
                                 </TableCell>
                                 <TableCell>
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${sectionItem.isVisible
+                                    {/* <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${sectionItem.isVisible
                                         ? 'bg-green-100 text-green-800'
                                         : 'bg-gray-100 text-gray-800'
                                         }`}>
                                         {sectionItem.isVisible ? 'Visible' : 'Hidden'}
-                                    </span>
+                                    </span> */}
+                                    <Button variant="outline" size="sm" className="bg-green-600 text-white cursor-pointer hover:bg-green-700" onClick={() => router.push(`/themes/${screenid}/${section}/block/${sectionItem.id}`)}>See Blocks</Button>
+
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex items-center justify-end space-x-2">
