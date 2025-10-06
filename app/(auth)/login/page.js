@@ -5,6 +5,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 // Yup validation schema
 const loginSchema = yup.object({
@@ -58,11 +59,14 @@ export default function LoginPage() {
         <div className="min-h-screen flex overflow-hidden">
             {/* Left Section - Image */}
             <div className="hidden lg:flex items-center lg:w-1/2 bg-gray-100 relative overflow-hidden">
-                <div className="size-[600px] mx-auto flex items-center justify-center">
-                    <img
-                        src="https://pandasuite.com/assets/ios-app-builder.CDNXRRX6_Z20K9G1.png"
+                <div className="size-full mx-auto flex items-center justify-center">
+                    <Image
+                        width={0}
+                        height={0}
+                        // src="https://pandasuite.com/assets/ios-app-builder.CDNXRRX6_Z20K9G1.png"
+                        src="/assets/webcontrive.webp"
                         alt="Login illustration"
-                        className=" object-cover"
+                        className="object-cover size-full"
                     />
                 </div>
             </div>
@@ -72,6 +76,14 @@ export default function LoginPage() {
                 <div className="w-full max-w-md">
                     {/* Header */}
                     <div className="mb-8">
+                        {/* App Logo */}
+                        <div className="flex justify-center mb-6">
+                            {/* <img
+                                src="https://webcontrive.com/cdn/shop/files/footer_logo.svg?v=1686044046&width=760"
+                                alt="App Logo"
+                                className="h-auto w-auto"
+                            /> */}
+                        </div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
                             Welcome back!
                         </h1>
@@ -107,6 +119,7 @@ export default function LoginPage() {
                                     placeholder="Password"
                                 />
                                 <button
+                                    aria-label="Show password"
                                     type="button"
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center"
                                 >
