@@ -13,7 +13,8 @@ import {
     Pencil,
     Trash,
     Eye,
-    EyeOff
+    EyeOff,
+    Settings
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { toast } from 'sonner'
@@ -21,7 +22,7 @@ import { ApiDelete } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 import BlockAddEditModal from './BlockComponents/BlockAddEditModal'
 
-export default function BlockList({ blockData, section, screenid }) {
+export default function BlockList({ blockData, section, screenid, blockid }) {
     console.log('blockData', blockData)
     const router = useRouter()
     const { sectionsettings } = useParams()
@@ -214,6 +215,17 @@ export default function BlockList({ blockData, section, screenid }) {
                                                 onClick={() => onDelete(block)}
                                             >
                                                 <Trash className="size-4 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="size-8 p-0 cursor-pointer hover:bg-red-50 hover:border-red-300 group transition-all duration-200"
+                                                onClick={() => {
+                                                    router.push(`/themes/${screenid}/${section}/block/${blockid}/${block?.id}`)
+                                                    localStorage.setItem('mainBlockName', block.name)
+                                                }}
+                                            >
+                                                <Settings className="size-4 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />
                                             </Button>
                                         </div>
                                     </TableCell>

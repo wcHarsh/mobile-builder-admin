@@ -12,7 +12,7 @@ export default async function page({ params }) {
     console.log('blockData', blockid, blockData)
     return (
         <Suspense fallback={<LoadingSpinner />}>
-            <BlockList {...{ blockData, section, screenid }} />
+            <BlockList {...{ blockData, section, screenid, blockid }} />
         </Suspense>
     )
 }
