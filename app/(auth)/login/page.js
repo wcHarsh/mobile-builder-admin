@@ -6,6 +6,8 @@ import * as yup from 'yup'
 import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import { ApiPost } from '@/Utils/axiosFunctions'
+import { Eye, EyeOff } from 'lucide-react'
 
 // Yup validation schema
 const loginSchema = yup.object({
@@ -16,12 +18,13 @@ const loginSchema = yup.object({
     password: yup
         .string()
         .required('Password is required')
-        .min(6, 'Password must be at least 6 characters'),
+        .min(3, 'Password must be at least 6 characters'),
 })
 
 export default function LoginPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
     const {
         register,
@@ -35,21 +38,27 @@ export default function LoginPage() {
         }
     })
 
+
     const onSubmit = async (data) => {
         try {
             setIsLoading(true)
-            console.log('Login data:', data)
+            const response = await ApiPost('admin/auth/login', data, {}, false)
 
-            // TODO: Implement actual login API call
-            // const response = await ApiPost('auth/login', data)
-
-            // Simulate API call
-            await new Promise(resolve => setTimeout(resolve, 1000))
-
-            toast.success('Login successful!')
-            router.push('/dashboard')
+            console.log('response', response)
+            if (response?.success === true) {
+                // Set authentication cookie
+                const token = response.data?.token || response.token || 'your-auth-token-here'
+                document.cookie = `auth-token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+                localStorage.setItem('mobile_builder_user_data', JSON.stringify(response.data))
+                toast.success(response?.message || 'Login successful!')
+                router.push('/dashboard')
+            } else {
+                console.log('response', response)
+                toast.error(response?.error?.message || 'Login failed. Please try again.')
+            }
         } catch (error) {
-            toast.error(error?.message || 'Login failed. Please try again.')
+            console.log('error', error)
+            toast.error(error?.response?.data?.message || error?.error?.message || 'Login failed. Please try again.')
         } finally {
             setIsLoading(false)
         }
@@ -61,12 +70,15 @@ export default function LoginPage() {
             <div className="hidden lg:flex items-center lg:w-1/2 bg-gray-100 relative overflow-hidden">
                 <div className="size-full mx-auto flex items-center justify-center">
                     <Image
-                        width={0}
-                        height={0}
-                        // src="https://pandasuite.com/assets/ios-app-builder.CDNXRRX6_Z20K9G1.png"
+                        width={600}
+                        height={400}
                         src="/assets/webcontrive.webp"
                         alt="Login illustration"
-                        className="object-cover size-full"
+                        className="object-cover w-full h-full"
+                        priority
+                        onError={(e) => {
+                            console.error('Image failed to load:', e)
+                        }}
                     />
                 </div>
             </div>
@@ -99,7 +111,6 @@ export default function LoginPage() {
                             <input
                                 {...register('email')}
                                 type="email"
-                                id="email"
                                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                 placeholder="Email"
                             />
@@ -113,20 +124,21 @@ export default function LoginPage() {
                             <div className="relative">
                                 <input
                                     {...register('password')}
-                                    type="password"
-                                    id="password"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    type={showPassword ? "text" : "password"}
+                                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                                     placeholder="Password"
                                 />
                                 <button
-                                    aria-label="Show password"
                                     type="button"
-                                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer hover:text-black text-gray-400 rounded-r-lg transition-colors"
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
                                 >
-                                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
+                                    {showPassword ? (
+                                        <EyeOff className="size-5" />
+                                    ) : (
+                                        <Eye className="size-5" />
+                                    )}
                                 </button>
                             </div>
                             {errors.password && (
@@ -143,7 +155,7 @@ export default function LoginPage() {
                             >
                                 {isSubmitting || isLoading ? (
                                     <div className="flex items-center justify-center">
-                                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin -ml-1 mr-3 size-5 text-white" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>

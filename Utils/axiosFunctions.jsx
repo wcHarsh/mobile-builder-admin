@@ -89,7 +89,7 @@ export const getHttpOptions = (options = defaultHeaders) => {
   let headers = {};
 
   if (options.hasOwnProperty("isAuth") && options.isAuth) {
-    // Only access localStorage on the client side
+    // Check if we're on the client side (browser)
     if (typeof window !== 'undefined' && localStorage) {
       try {
         const storedData = localStorage.getItem("mobile_builder_user_data");
@@ -99,10 +99,24 @@ export const getHttpOptions = (options = defaultHeaders) => {
       } catch (error) {
         console.warn("Error parsing user data from localStorage:", error);
       }
+    } else {
+      // Server-side: try to get token from cookies
+      try {
+        const { cookies } = require('next/headers');
+        const cookieStore = cookies();
+        const authToken = cookieStore.get('auth-token')?.value;
+
+        if (authToken) {
+          // Create a minimal userData object with the token
+          userData = { token: authToken };
+        }
+      } catch (error) {
+        console.warn("Error reading auth token from cookies:", error);
+      }
     }
 
-    if (userData) {
-      headers["Authorization"] = "Bearer " + userData?.token;
+    if (userData?.token) {
+      headers["Authorization"] = "Bearer " + userData.token;
     }
     headers["Cache-Control"] = "no-cache";
   }
