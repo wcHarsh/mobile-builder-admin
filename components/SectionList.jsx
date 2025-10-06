@@ -15,7 +15,8 @@ import {
     Edit,
     Pencil,
     Trash,
-    View
+    View,
+    Settings
 } from 'lucide-react'
 import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
@@ -200,7 +201,7 @@ export default function SectionList({ sectionData, screenData }) {
                                                     localStorage.setItem('mainSectionName', sectionItem.name)
                                             }}
                                         >
-                                            <View className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
+                                            <Settings className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
                                         </Button>
                                     </div>
                                 </TableCell>

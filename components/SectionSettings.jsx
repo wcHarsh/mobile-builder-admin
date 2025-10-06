@@ -9,10 +9,10 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash, View } from 'lucide-react'
+import { Pencil, Trash, View, GripVertical } from 'lucide-react'
 import SectionSettingsAddEditModal from './SectionComponents/SectionSettingsAddEditModal'
 import { toast } from 'sonner'
-import { ApiDelete } from '@/Utils/axiosFunctions'
+import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 
@@ -32,6 +32,70 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
         limit: null,
     })
     const [isEdit, setIsEdit] = useState(false)
+    const [draggedItem, setDraggedItem] = useState(null)
+    const [settings, setSettings] = useState(sectionSettingsData || [])
+
+    // Update settings when sectionSettingsData changes
+    React.useEffect(() => {
+        setSettings(sectionSettingsData || [])
+    }, [sectionSettingsData])
+
+    // Drag and Drop Handlers
+    const handleDragStart = (e, setting) => {
+        setDraggedItem(setting)
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.outerHTML)
+        e.target.style.opacity = '0.5'
+    }
+
+    const handleDragEnd = (e) => {
+        e.target.style.opacity = '1'
+        setDraggedItem(null)
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+    }
+
+    const handleDrop = async (e, targetSetting) => {
+        e.preventDefault()
+
+        if (!draggedItem || draggedItem.id === targetSetting.id) {
+            return
+        }
+
+        // Create new array with reordered items
+        const draggedIndex = settings.findIndex(item => item.id === draggedItem.id)
+        const targetIndex = settings.findIndex(item => item.id === targetSetting.id)
+
+        const newSettings = [...settings]
+        const [draggedSetting] = newSettings.splice(draggedIndex, 1)
+        newSettings.splice(targetIndex, 0, draggedSetting)
+
+        setSettings(newSettings)
+
+        // Call API to reorder
+        try {
+            const reorderedIds = newSettings.map(setting => setting.id)
+            const payload = {
+                mainThemeId: parseInt(screenid),
+                mainScreenType: localStorage.getItem('mainScreenType'),
+                mainSectionName: localStorage.getItem('mainSectionName'),
+                mainSettingIds: reorderedIds
+            }
+
+            await ApiPost('admin/sections/settings/dev/reorder', payload)
+
+            toast.success('Settings reordered successfully')
+            router.refresh()
+        } catch (error) {
+            console.error('Error reordering settings:', error)
+            toast.error('Failed to reorder settings')
+            // Revert the local state on error
+            setSettings(sectionSettingsData || [])
+        }
+    }
 
     const onEdit = (data) => {
         console.log('data', data)
@@ -77,7 +141,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                     }
                 })
 
-                const deleteResponse = await ApiDelete(`admin/sections/dev/${data.id}`)
+                const deleteResponse = await ApiDelete(`admin/sections/settings/dev/?mainThemeId=${screenid}&mainScreenType=${localStorage.getItem('mainScreenType')}&mainSectionName=${localStorage.getItem('mainSectionName')}&mainSettingName=${data.name}`)
 
                 // Show success message
                 Swal.fire({
@@ -139,6 +203,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-gray-50">
+                            <TableHead className="w-12 font-semibold text-gray-700"></TableHead>
                             <TableHead className="font-semibold text-gray-700">Label</TableHead>
                             <TableHead className="font-semibold text-gray-700">Type</TableHead>
                             <TableHead className="font-semibold text-gray-700">Value</TableHead>
@@ -147,9 +212,22 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sectionSettingsData.map((setting) => {
+                        {settings.map((setting) => {
                             return (
-                                <TableRow key={setting.id} className="hover:bg-gray-50 border-b border-gray-100">
+                                <TableRow
+                                    key={setting.id}
+                                    className="hover:bg-gray-50 border-b border-gray-100 cursor-move"
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, setting)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, setting)}
+                                >
+                                    <TableCell className="w-12">
+                                        <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded">
+                                            <GripVertical className="size-4 text-gray-400" />
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="font-medium text-gray-900">
                                         {setting.label}
                                     </TableCell>
@@ -191,13 +269,6 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                                                 onClick={() => onDelete(setting)}
                                             >
                                                 <Trash className="size-4 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="size-8 p-0 cursor-pointer hover:bg-green-50 hover:border-green-300 group transition-all duration-200"
-                                            >
-                                                <View className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
                                             </Button>
                                         </div>
                                     </TableCell>
