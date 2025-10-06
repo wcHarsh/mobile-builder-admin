@@ -139,7 +139,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting || isLoading}
-                                className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="w-full cursor-pointer bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 {isSubmitting || isLoading ? (
                                     <div className="flex items-center justify-center">
