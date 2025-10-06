@@ -63,7 +63,7 @@ const TopBar = ({ onMenuToggle }) => {
             {/* Right side - Notifications and user menu */}
             <div className="flex items-center space-x-4">
                 {/* Notifications */}
-                <div className="relative">
+                {/* <div className="relative">
                     <button
                         onClick={() => setShowNotifications(!showNotifications)}
                         className="p-2 rounded-md hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 relative"
@@ -78,7 +78,6 @@ const TopBar = ({ onMenuToggle }) => {
                         )}
                     </button>
 
-                    {/* Notifications dropdown */}
                     {showNotifications && (
                         <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                             <div className="p-4 border-b border-gray-200">
@@ -116,7 +115,7 @@ const TopBar = ({ onMenuToggle }) => {
                             </div>
                         </div>
                     )}
-                </div>
+                </div> */}
 
                 {/* User menu */}
                 <div className="relative">
