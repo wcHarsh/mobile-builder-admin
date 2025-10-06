@@ -38,7 +38,7 @@ export const ApiPost = async (url, body, params, isAuth = true) => {
         resolve(response?.data);
       })
       .catch(async (error) => {
-        if (error?.response?.status === 401 && window.location.pathname !== '/auth/login') {
+        if (error?.response?.status === 401 && window.location.pathname !== '/login') {
           Logout();
         }
         reject(error?.response?.data || error);
@@ -94,7 +94,7 @@ export const getHttpOptions = (options = defaultHeaders) => {
       try {
         const storedData = localStorage.getItem("mobile_builder_user_data");
         if (storedData) {
-          userData = JSON.parse(storedData)?.data;
+          userData = JSON.parse(storedData);
         }
       } catch (error) {
         console.warn("Error parsing user data from localStorage:", error);
@@ -102,7 +102,7 @@ export const getHttpOptions = (options = defaultHeaders) => {
     }
 
     if (userData) {
-      headers["Authorization"] = "Bearer " + userData?.tokens?.accessToken;
+      headers["Authorization"] = "Bearer " + userData?.token;
     }
     headers["Cache-Control"] = "no-cache";
   }
