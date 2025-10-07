@@ -1,5 +1,5 @@
 'use client'
-import { Button, Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
@@ -62,6 +62,9 @@ const blockSettingsSchema = yup.object({
             }
             return true
         }),
+    suffix: yup
+        .string()
+        .nullable(),
 })
 
 export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateData, isEdit, blockid }) {
@@ -90,6 +93,7 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
             max: null,
             navigationValue: '',
             limit: null,
+            suffix: null,
         }
     })
 
@@ -125,6 +129,7 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
                 setValue('max', templateData.max || null)
                 setValue('navigationValue', templateData.navigationValue || '')
                 setValue('limit', templateData.limit || null)
+                setValue('suffix', templateData.suffix || null)
             } else {
                 reset()
                 setSelectedType('')
@@ -184,6 +189,10 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
         if (data.limit !== null && data.limit !== undefined && data.limit !== '') {
             payload.limit = data.limit
         }
+        if (data.suffix !== null && data.suffix !== undefined && data.suffix !== '') {
+            payload.suffix = data.suffix
+        }
+        console.log('payload', payload)
         try {
             if (isEdit) {
                 const updateResponse = await ApiPut(`admin/blocks/settings/dev`, payload)
@@ -272,6 +281,7 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
                                                 max: watch('max') || null,
                                                 navigationValue: watch('navigationValue') || '',
                                                 limit: watch('limit') || null,
+                                                suffix: watch('suffix') || null,
                                             })
                                             setSelectedOptions([])
                                         }}
@@ -412,22 +422,23 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
                                             <p className="mt-1 text-sm text-red-600">{errors.options.message}</p>
                                         )}
                                     </div>)}
-
                                 {/* Navigation Value Field */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Navigation Value
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('navigationValue')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Enter navigation value"
-                                    />
-                                    {errors.navigationValue && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.navigationValue.message}</p>
-                                    )}
-                                </div>
+                                {watchedType === 'select' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Navigation Value
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('navigationValue')}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Enter navigation value"
+                                        />
+                                        {errors.navigationValue && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.navigationValue.message}</p>
+                                        )}
+                                    </div>
+                                )}
 
                             </div>
 
@@ -479,9 +490,39 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
                                             <p className="mt-1 text-sm text-red-600">{errors.limit.message}</p>
                                         )}
                                     </div>
+                                    {/* suffix field */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Suffix
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('suffix')}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Enter suffix"
+                                        />
+                                        {errors.suffix && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.suffix.message}</p>
+                                        )}
+                                    </div>
                                 </div>
                             )}
-
+                            {watchedType === 'text' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Limit
+                                    </label>
+                                    <input
+                                        type="number"
+                                        {...register('limit', { valueAsNumber: true })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter limit"
+                                    />
+                                    {errors.limit && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.limit.message}</p>
+                                    )}
+                                </div>
+                            )}
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-3 pt-4">
                                 <button

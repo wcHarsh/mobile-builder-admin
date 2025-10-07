@@ -29,6 +29,7 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
         limit: null,
         navigationValue: '',
         orderIndex: 0,
+        suffix: null,
     })
     const [isEdit, setIsEdit] = useState(false)
     const [draggedItem, setDraggedItem] = useState(null)
@@ -104,6 +105,7 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
             limit: data.limit,
             navigationValue: data.navigationValue,
             orderIndex: data.orderIndex,
+            suffix: data.suffix,
         })
         setIsEdit(true)
     }
@@ -169,6 +171,7 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
                             limit: null,
                             navigationValue: '',
                             orderIndex: 0,
+                            suffix: null,
                         })
                         setIsEdit(false)
                     }}

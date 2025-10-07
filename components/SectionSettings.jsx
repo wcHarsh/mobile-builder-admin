@@ -31,6 +31,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
         max: null,
         navigation_value: '',
         limit: null,
+        suffix: null,
     })
     const [isEdit, setIsEdit] = useState(false)
     const [draggedItem, setDraggedItem] = useState(null)
@@ -111,6 +112,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
             max: data.max,
             navigation_value: data.navigation_value,
             limit: data.limit,
+            suffix: data.suffix,
         })
         setIsEdit(true)
     }
@@ -184,7 +186,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                             max: null,
                             navigation_value: '',
                             limit: null,
-
+                            suffix: null,
                         })
                         setIsEdit(false)
                     }}

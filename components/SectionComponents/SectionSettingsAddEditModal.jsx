@@ -53,6 +53,9 @@ const sectionSettingsSchema = yup.object({
     limit: yup
         .number()
         .nullable(),
+    suffix: yup
+        .string()
+        .nullable(),
     options: yup
         .mixed()
         .test('options-required', 'Options are required for select type', function (value) {
@@ -67,7 +70,6 @@ const sectionSettingsSchema = yup.object({
 export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templateData, isEdit, }) {
     const { screenid, section } = useParams()
     const router = useRouter()
-    const [selectedType, setSelectedType] = useState('')
     const [selectedOptions, setSelectedOptions] = useState([])
 
     const {
@@ -90,6 +92,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
             max: null,
             navigation_value: '',
             limit: null,
+            suffix: null,
         }
     })
 
@@ -98,47 +101,66 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
     useEffect(() => {
         if (isOpen) {
             if (isEdit && templateData) {
-                setSelectedType(templateData.type || '')
-                setValue('label', templateData.label || '')
-                setValue('name', templateData.name || '')
-                setValue('type', templateData.type || '')
-                if (templateData.type === 'collection' || templateData.type === 'product' || templateData.type === 'multi_collections') {
-                    setValue('value', [])
-                } else if (templateData.type === 'toggle') {
-                    const toggleValue = templateData.value ? 'true' : 'false'
-                    setTimeout(() => {
-                        setValue('value', toggleValue)
-                        trigger('value')
-                    }, 10)
-                } else if (templateData.type === 'number' || templateData.type === 'range') {
-                    setValue('value', templateData.value !== null && templateData.value !== undefined ? templateData.value : '')
-                } else {
-                    setValue('value', templateData.value || '')
+                // Set all form values at once to avoid race conditions
+                const formData = {
+                    label: templateData.label || '',
+                    name: templateData.name || '',
+                    type: templateData.type || '',
+                    value: templateData.value || '',
+                    options: templateData.options || [],
+                    min: templateData.min || null,
+                    max: templateData.max || null,
+                    navigation_value: templateData.navigation_value || '',
+                    limit: templateData.limit || null,
+                    suffix: templateData.suffix || null,
                 }
-                setValue('options', templateData.options || [])
+
+                // Handle value based on type
+                if (templateData.type === 'collection' || templateData.type === 'product' || templateData.type === 'multi_collections') {
+                    formData.value = []
+                } else if (templateData.type === 'toggle') {
+                    formData.value = templateData.value ? 'true' : 'false'
+                } else if (templateData.type === 'number' || templateData.type === 'range') {
+                    formData.value = templateData.value !== null && templateData.value !== undefined ? templateData.value : ''
+                } else {
+                    formData.value = templateData.value || ''
+                }
+
+                // Reset form with all data at once
+                reset(formData)
+
+                // Set options for select
                 if (templateData.options && Array.isArray(templateData.options)) {
-                    setSelectedOptions(templateData.options.map(option => ({ value: option, label: option })))
+                    const options = templateData.options.map(option => ({ value: option, label: option }))
+                    setSelectedOptions(options)
                 } else {
                     setSelectedOptions([])
                 }
-                setValue('min', templateData.min || null)
-                setValue('max', templateData.max || null)
-                setValue('navigation_value', templateData.navigation_value || '')
-                setValue('limit', templateData.limit || null)
             } else {
-                reset()
-                setSelectedType('')
+                // Reset form to default values for new entry
+                const defaultFormData = {
+                    label: '',
+                    name: '',
+                    type: '',
+                    value: '',
+                    options: [],
+                    min: null,
+                    max: null,
+                    navigation_value: '',
+                    limit: null,
+                    suffix: null,
+                }
+                reset(defaultFormData)
+                setSelectedOptions([])
             }
         }
-    }, [isOpen, isEdit, templateData, setValue, reset])
+    }, [isOpen, isEdit, templateData, reset])
 
     useEffect(() => {
-        if (selectedType === 'collection' || selectedType === 'product' || selectedType === 'multi_collections') {
+        if (watchedType === 'collection' || watchedType === 'product' || watchedType === 'multi_collections') {
             setValue('value', [])
-        } else if (selectedType && selectedType !== '') {
-            setValue('value', '')
         }
-    }, [selectedType, setValue])
+    }, [watchedType, setValue])
     const onSubmit = async (data) => {
         if (data.type === 'collection' || data.type === 'product' || data.type === 'multi_collections') {
             data.value = []
@@ -178,6 +200,10 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
         if (data.limit !== null && data.limit !== undefined && data.limit !== '') {
             payload.limit = data.limit
         }
+        if (data.suffix !== null && data.suffix !== undefined && data.suffix !== '') {
+            payload.suffix = data.suffix
+        }
+        console.log('payload', payload)
         try {
             if (isEdit) {
                 const updateResponse = await ApiPut(`admin/sections/settings/dev`, payload)
@@ -195,7 +221,21 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
 
     const handleClose = () => {
         setIsOpen(false)
-        reset()
+        // Reset form to default values
+        const defaultFormData = {
+            label: '',
+            name: '',
+            type: '',
+            value: '',
+            options: [],
+            min: null,
+            max: null,
+            navigation_value: '',
+            limit: null,
+            suffix: null,
+        }
+        reset(defaultFormData)
+        setSelectedOptions([])
     }
 
     return (
@@ -252,20 +292,19 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                     <select
                                         {...register('type')}
                                         onChange={(e) => {
-                                            setSelectedType(e.target.value)
-                                            setValue('type', e.target.value)
-                                            reset({
-                                                type: e.target.value,
-                                                value: e.target.value === 'collection' || e.target.value === 'product' || e.target.value === 'multi_collections' ? [] : '',
-                                                label: watch('label') || '',
-                                                name: watch('name') || '',
-                                                options: watch('options') || [],
-                                                min: watch('min') || null,
-                                                max: watch('max') || null,
-                                                navigation_value: watch('navigation_value') || '',
-                                                limit: watch('limit') || null,
-                                            })
+                                            const newType = e.target.value
+                                            setValue('type', newType)
+
+                                            // Reset value based on new type
+                                            if (newType === 'collection' || newType === 'product' || newType === 'multi_collections') {
+                                                setValue('value', [])
+                                            } else {
+                                                setValue('value', '')
+                                            }
+
+                                            // Clear options when type changes
                                             setSelectedOptions([])
+                                            setValue('options', [])
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
@@ -298,7 +337,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Value
                                     </label>
-                                    {(selectedType === 'collection' || selectedType === 'product' || selectedType === 'multi_collections') ? (
+                                    {(watchedType === 'collection' || watchedType === 'product' || watchedType === 'multi_collections') ? (
                                         <input
                                             type="text"
                                             value="[]"
@@ -310,11 +349,13 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         <input
                                             type="color"
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     ) : watchedType === 'toggle' ? (
                                         <select
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         >
                                             <option value="" disabled>Select option</option>
@@ -325,6 +366,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         <input
                                             type="number"
                                             {...register('value', { valueAsNumber: true })}
+                                            onChange={register('value', { valueAsNumber: true }).onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Enter numeric value"
                                         />
@@ -332,6 +374,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         <input
                                             type="number"
                                             {...register('value', { valueAsNumber: true })}
+                                            onChange={register('value', { valueAsNumber: true }).onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Enter numeric value"
                                         />
@@ -339,18 +382,21 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         <input
                                             type="date"
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     ) : watchedType === 'time' ? (
                                         <input
                                             type="time"
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     ) : watchedType === 'icon' ? (
                                         <input
                                             type="text"
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Enter icon name"
                                         />
@@ -358,6 +404,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         <input
                                             type="text"
                                             {...register('value')}
+                                            onChange={register('value').onChange}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                             placeholder="Enter value"
                                         />
@@ -403,28 +450,31 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         {errors.options && (
                                             <p className="mt-1 text-sm text-red-600">{errors.options.message}</p>
                                         )}
-                                    </div>)}
+                                    </div>
 
+                                )}
                                 {/* Navigation Value Field */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Navigation Value
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('navigation_value')}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Enter navigation value"
-                                    />
-                                    {errors.navigation_value && (
-                                        <p className="mt-1 text-sm text-red-600">{errors.navigation_value.message}</p>
-                                    )}
-                                </div>
+                                {watchedType === 'select' && (
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Navigation Value
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('navigation_value')}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Enter navigation value"
+                                        />
+                                        {errors.navigation_value && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.navigation_value.message}</p>
+                                        )}
+                                    </div>
+                                )}
 
                             </div>
 
                             {/* Number Range Fields */}
-                            {watchedType === 'range' && (
+                            {(watchedType === 'range') && (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -472,13 +522,39 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                             <p className="mt-1 text-sm text-red-600">{errors.limit.message}</p>
                                         )}
                                     </div>
+                                    {/* suffix field */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            Suffix
+                                        </label>
+                                        <input
+                                            type="text"
+                                            {...register('suffix')}
+                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            placeholder="Enter suffix"
+                                        />
+                                        {errors.suffix && (
+                                            <p className="mt-1 text-sm text-red-600">{errors.suffix.message}</p>
+                                        )}
+                                    </div>
                                 </div>
                             )}
-
-
-
-
-
+                            {watchedType === 'text' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        Limit
+                                    </label>
+                                    <input
+                                        type="number"
+                                        {...register('limit', { valueAsNumber: true })}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter limit"
+                                    />
+                                    {errors.limit && (
+                                        <p className="mt-1 text-sm text-red-600">{errors.limit.message}</p>
+                                    )}
+                                </div>
+                            )}
                             {/* Action Buttons */}
                             <div className="flex justify-end space-x-3 pt-4">
                                 <button
@@ -500,6 +576,6 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                     </DialogPanel>
                 </div>
             </div>
-        </Dialog>
+        </Dialog >
     )
 }
