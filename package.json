@@ -29,5 +29,8 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4"
+  },
+  "engines": {
+    "node": ">=22.5.1"
   }
 }

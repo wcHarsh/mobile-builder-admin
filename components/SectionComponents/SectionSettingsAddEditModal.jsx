@@ -508,7 +508,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
 
 
                                     {/* Limit Field */}
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Limit
                                         </label>
@@ -521,7 +521,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         {errors.limit && (
                                             <p className="mt-1 text-sm text-red-600">{errors.limit.message}</p>
                                         )}
-                                    </div>
+                                    </div> */}
                                     {/* suffix field */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
