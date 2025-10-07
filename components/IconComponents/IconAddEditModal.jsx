@@ -8,7 +8,7 @@ import { toast } from 'sonner'
 import { ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
 
-// Yup validation schema
+
 const iconSchema = yup.object({
     name: yup
         .string()
@@ -40,7 +40,6 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
         }
     })
 
-    // Watch the icon field for preview
     const watchedIcon = watch('icon')
 
     useEffect(() => {
@@ -56,28 +55,25 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
         }
     }, [isOpen, isEdit, templateData, setValue, reset])
 
-    // Update preview when icon changes
     useEffect(() => {
         if (watchedIcon) {
             setPreviewIcon(watchedIcon)
         }
     }, [watchedIcon])
 
-
     const onSubmit = async (data) => {
         try {
             const payload = {
                 name: data.name,
-                icon: data.icon
+                icon: data.icon,
+                ...(isEdit && templateData && { id: templateData?.id })
             }
 
-            console.log('payload', payload)
-            // return
             if (isEdit) {
-                const updateResponse = await ApiPut(`icons/${templateData.id}`, payload)
+                const updateResponse = await ApiPut(`admin/icons`, payload)
                 toast.success(updateResponse?.message || 'Icon updated successfully')
             } else {
-                const addResponse = await ApiPost(`icons`, payload)
+                const addResponse = await ApiPost(`admin/icons`, payload)
                 toast.success(addResponse?.message || 'Icon added successfully')
             }
             setIsOpen(false)
@@ -106,8 +102,8 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
                         </DialogTitle>
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Name Field */}
+                            <div className="grid grid-cols-1 gap-4">
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Name *
@@ -123,14 +119,14 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
                                     )}
                                 </div>
 
-                                {/* Icon Field */}
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Icon *
                                     </label>
                                     <textarea
                                         {...register('icon')}
-                                        rows={4}
+                                        rows={15}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Enter SVG icon code"
                                     />
@@ -140,7 +136,7 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
                                 </div>
                             </div>
 
-                            {/* Preview Section */}
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Preview
@@ -159,7 +155,7 @@ export default function IconAddEditModal({ isOpen, setIsOpen, templateData, isEd
                                 </div>
                             </div>
 
-                            {/* Action Buttons */}
+
                             <div className="flex justify-end space-x-3 pt-4">
                                 <button
                                     type="button"

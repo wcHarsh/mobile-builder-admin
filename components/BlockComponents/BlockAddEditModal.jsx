@@ -50,7 +50,6 @@ export default function BlockAddEditModal({ isOpen, setIsOpen, templateData, isE
     useEffect(() => {
         if (isOpen) {
             if (isEdit && templateData) {
-                // Populate form with existing data
                 setValue('name', templateData.name || '')
                 setValue('icon', templateData.icon || '')
                 setValue('is_deleted', templateData.is_deleted || true)

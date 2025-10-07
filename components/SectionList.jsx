@@ -10,17 +10,12 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import {
-    Home,
-    Eye,
-    Edit,
     Pencil,
     Trash,
-    View,
     Settings
 } from 'lucide-react'
 import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
-import { toast } from 'sonner'
 import { ApiDelete } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 
@@ -55,7 +50,6 @@ export default function SectionList({ sectionData, screenData, section }) {
     }
 
     const onDelete = async (data) => {
-        // Show SweetAlert confirmation
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: `Do you want to delete section "${data.name}"?`,
@@ -68,10 +62,8 @@ export default function SectionList({ sectionData, screenData, section }) {
             reverseButtons: true
         })
 
-        // If user confirms deletion
         if (result.isConfirmed) {
             try {
-                // Show loading state
                 Swal.fire({
                     title: 'Deleting...',
                     text: 'Please wait while we delete the section.',
@@ -83,7 +75,6 @@ export default function SectionList({ sectionData, screenData, section }) {
 
                 const deleteResponse = await ApiDelete(`admin/sections/dev/?mainThemeId=${screenid}&mainScreenType=${screenData}&mainSectionName=${data?.name}`)
 
-                // Show success message
                 Swal.fire({
                     title: 'Deleted!',
                     text: deleteResponse?.message || 'Section has been deleted successfully.',
@@ -91,10 +82,8 @@ export default function SectionList({ sectionData, screenData, section }) {
                     confirmButtonText: 'OK'
                 })
 
-                // Refresh the page data
                 router.refresh()
             } catch (error) {
-                // Show error message
                 Swal.fire({
                     title: 'Error!',
                     text: error?.message || 'Error deleting section',
@@ -138,7 +127,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                             <TableHead className="font-semibold text-gray-700">Name</TableHead>
                             <TableHead className="font-semibold text-gray-700">Description</TableHead>
                             <TableHead className="font-semibold text-gray-700">Order</TableHead>
-                            <TableHead className="font-semibold text-gray-700">Status</TableHead>
+                            <TableHead className="font-semibold text-gray-700">Blocks</TableHead>
                             <TableHead className="text-right font-semibold text-gray-700">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -172,7 +161,11 @@ export default function SectionList({ sectionData, screenData, section }) {
                                         }`}>
                                         {sectionItem.isVisible ? 'Visible' : 'Hidden'}
                                     </span> */}
-                                    <Button variant="outline" size="sm" className="bg-green-600 text-white cursor-pointer hover:bg-green-700" onClick={() => router.push(`/themes/${screenid}/${section}/block/${sectionItem.id}`)}>See Blocks</Button>
+                                    {sectionItem?.hasBlocks ? (
+                                        <Button variant="outline" size="sm" className="bg-green-600 text-white cursor-pointer hover:bg-green-700" onClick={() => router.push(`/themes/${screenid}/${section}/block/${sectionItem.id}`)}>See Blocks</Button>
+                                    ) : (
+                                        <span className="text-sm text-center text-gray-600">No blocks</span>
+                                    )}
 
                                 </TableCell>
                                 <TableCell className="text-right">

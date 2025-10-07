@@ -53,7 +53,6 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
         }
     })
 
-    // Define name options based on type
     const getNameOptions = (type) => {
         if (type === 'header') {
             return [{ value: 'Header', label: 'Header' }]
@@ -78,7 +77,6 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
     useEffect(() => {
         if (isOpen) {
             if (isEdit && templateData) {
-                // Populate form with existing data
                 setValue('name', templateData.name || '')
                 setValue('icon', templateData.icon || '')
                 setValue('description', templateData.description || '')
@@ -106,7 +104,6 @@ export default function SectionAddEditModal({ isOpen, setIsOpen, templateData, i
             is_visible: data?.is_visible
         }
         console.log('payload', payload)
-        // return
         try {
             if (isEdit) {
                 const updateResponse = await ApiPut(`admin/sections/dev`, payload)

@@ -93,28 +93,22 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
         }
     })
 
-    // Watch the type field to show/hide relevant fields
     const watchedType = watch('type')
 
     useEffect(() => {
         if (isOpen) {
             if (isEdit && templateData) {
-                // Set selectedType first so the form can properly render
                 setSelectedType(templateData.type || '')
-                // Populate form with existing data
                 setValue('label', templateData.label || '')
                 setValue('name', templateData.name || '')
                 setValue('type', templateData.type || '')
-                // For collection, product, multi_collections types, set value to [] if it's not already set
                 if (templateData.type === 'collection' || templateData.type === 'product' || templateData.type === 'multi_collections') {
                     setValue('value', [])
                 } else if (templateData.type === 'toggle') {
                     const toggleValue = templateData.value ? 'true' : 'false'
-                    console.log('Setting toggle value:', toggleValue, 'from templateData.value:', templateData.value)
-                    // Use setTimeout to ensure the form has rendered
                     setTimeout(() => {
                         setValue('value', toggleValue)
-                        trigger('value') // Force form to re-render
+                        trigger('value')
                     }, 10)
                 } else if (templateData.type === 'number' || templateData.type === 'range') {
                     setValue('value', templateData.value !== null && templateData.value !== undefined ? templateData.value : '')
@@ -122,7 +116,6 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                     setValue('value', templateData.value || '')
                 }
                 setValue('options', templateData.options || [])
-                // Convert options array to react-select format
                 if (templateData.options && Array.isArray(templateData.options)) {
                     setSelectedOptions(templateData.options.map(option => ({ value: option, label: option })))
                 } else {
@@ -139,28 +132,20 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
         }
     }, [isOpen, isEdit, templateData, setValue, reset])
 
-    // Handle type change to automatically set value for specific types
     useEffect(() => {
         if (selectedType === 'collection' || selectedType === 'product' || selectedType === 'multi_collections') {
             setValue('value', [])
         } else if (selectedType && selectedType !== '') {
-            // Clear value for all other types
             setValue('value', '')
         }
     }, [selectedType, setValue])
-    console.log('templateData', templateData)
     const onSubmit = async (data) => {
-        // Automatically set value to [] for collection, product, and multi_collections types
         if (data.type === 'collection' || data.type === 'product' || data.type === 'multi_collections') {
             data.value = []
         }
-
-        // Convert toggle value to boolean
         if (data.type === 'toggle') {
             data.value = data.value === 'true' || data.value === true
         }
-
-        // Convert value to number for number and range types
         if (data.type === 'number' || data.type === 'range') {
             if (data.value === '' || data.value === null || data.value === undefined || isNaN(data.value)) {
                 data.value = 0
@@ -168,8 +153,6 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                 data.value = Number(data.value)
             }
         }
-
-        // Build payload with only keys that have values, except value which is always sent
         const payload = {
             mainThemeId: Number(screenid),
             mainScreenType: localStorage.getItem('mainScreenType'),
@@ -177,11 +160,9 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
             label: data.label,
             name: data.name,
             type: data.type,
-            value: data.value, // Always send value
+            value: data.value,
             ...(isEdit && { mainSettingName: templateData?.name }),
         }
-
-        // Only add keys if they have values
         if (data.options && data.options.length > 0) {
             payload.options = data.options
         }
@@ -197,8 +178,6 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
         if (data.limit !== null && data.limit !== undefined && data.limit !== '') {
             payload.limit = data.limit
         }
-        console.log('payload', payload, payload?.value)
-        // return
         try {
             if (isEdit) {
                 const updateResponse = await ApiPut(`admin/sections/settings/dev`, payload)
@@ -274,10 +253,7 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                         {...register('type')}
                                         onChange={(e) => {
                                             setSelectedType(e.target.value)
-                                            // Force re-render by updating the watched value first
                                             setValue('type', e.target.value)
-
-                                            // Reset the entire form to prevent NaN issues
                                             reset({
                                                 type: e.target.value,
                                                 value: e.target.value === 'collection' || e.target.value === 'product' || e.target.value === 'multi_collections' ? [] : '',
@@ -289,7 +265,6 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
                                                 navigation_value: watch('navigation_value') || '',
                                                 limit: watch('limit') || null,
                                             })
-                                            // Reset options state
                                             setSelectedOptions([])
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

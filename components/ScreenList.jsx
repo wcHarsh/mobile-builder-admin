@@ -1,7 +1,4 @@
 'use client'
-import { ApiGet } from '@/Utils/axiosFunctions'
-import React, { useEffect, useState } from 'react'
-import LoadingSpinner from './LoadingSpinner'
 import {
     Table,
     TableBody,
@@ -13,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button"
 import {
     Home,
-    Edit,
+    Settings,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -63,13 +60,13 @@ export default function ScreenList({ screenid, screenData }) {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            className="size-8 p-0 cursor-pointer"
+                                            className="size-8 p-0  cursor-pointer hover:bg-green-50 hover:border-green-300 hover:text-green-600 group transition-all duration-200"
                                             onClick={() => {
                                                 router.push(`/themes/${screenid}/${screen.id}`),
                                                     localStorage.setItem('mainScreenType', screen.type)
                                             }}
                                         >
-                                            <Edit className="size-4" />
+                                            <Settings className="size-4" />
                                         </Button>
 
                                     </div>

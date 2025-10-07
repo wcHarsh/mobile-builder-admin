@@ -12,8 +12,6 @@ import {
 import {
     Pencil,
     Trash,
-    Eye,
-    EyeOff,
     Settings
 } from 'lucide-react'
 import { Button } from './ui/button'
@@ -25,7 +23,6 @@ import BlockAddEditModal from './BlockComponents/BlockAddEditModal'
 export default function BlockList({ blockData, section, screenid, blockid }) {
     console.log('blockData', blockData)
     const router = useRouter()
-    const { sectionsettings } = useParams()
     const [isOpen, setIsOpen] = useState(false)
     const [templateData, setTemplateData] = useState({
         name: '',
@@ -100,15 +97,6 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
         }
     }
 
-    const toggleVisibility = async (block) => {
-        try {
-            const newVisibility = !block.isVisible
-            // You can add API call here to update visibility
-            toast.success(`Block ${newVisibility ? 'shown' : 'hidden'} successfully`)
-        } catch (error) {
-            toast.error('Failed to update visibility')
-        }
-    }
 
     return (
         <div className="space-y-4">

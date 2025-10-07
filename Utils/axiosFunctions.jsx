@@ -13,78 +13,98 @@ const BaseURL = process.env.NEXT_PUBLIC_API_URL
 
 export const ApiGet = async (url, params, isAuth = true) => {
   return new Promise(async (resolve, reject) => {
-    axios
-      .get(BaseURL + url, { params, ...getHttpOptions({ ...defaultHeaders, isAuth }) })
-      .then((response) => {
-        resolve(response?.data);
-      })
-      .catch(async (error) => {
-        if (error?.response?.status === 401) {
-          Logout();
-        }
-        reject(error?.response?.data || error);
-      });
+    try {
+      const httpOptions = await getHttpOptions({ ...defaultHeaders, isAuth });
+      axios
+        .get(BaseURL + url, { params, ...httpOptions })
+        .then((response) => {
+          resolve(response?.data);
+        })
+        .catch(async (error) => {
+          if (error?.response?.status === 401) {
+            Logout();
+          }
+          reject(error?.response?.data || error);
+        });
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
 export const ApiPost = async (url, body, params, isAuth = true) => {
   return new Promise(async (resolve, reject) => {
-    axios
-      .post(BaseURL + url, body, {
-        params,
-        ...getHttpOptions({ ...defaultHeaders, isAuth }),
-      })
-      .then((response) => {
-        resolve(response?.data);
-      })
-      .catch(async (error) => {
-        if (error?.response?.status === 401 && window.location.pathname !== '/login') {
-          Logout();
-        }
-        reject(error?.response?.data || error);
-      });
+    try {
+      const httpOptions = await getHttpOptions({ ...defaultHeaders, isAuth });
+      axios
+        .post(BaseURL + url, body, {
+          params,
+          ...httpOptions,
+        })
+        .then((response) => {
+          resolve(response?.data);
+        })
+        .catch(async (error) => {
+          if (error?.response?.status === 401 && window.location.pathname !== '/login') {
+            Logout();
+          }
+          reject(error?.response?.data || error);
+        });
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 
 export const ApiPut = async (url, body, params, isAuth = true) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .put(BaseURL + url, body, {
-        params,
-        ...getHttpOptions({ ...defaultHeaders, isAuth }),
-      })
-      .then((response) => {
-        resolve(response?.data);
-      })
-      .catch(async (error) => {
-        if (error?.response?.status === 401) {
-          Logout();
-        }
-        reject(error?.response?.data || error);
-      });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const httpOptions = await getHttpOptions({ ...defaultHeaders, isAuth });
+      axios
+        .put(BaseURL + url, body, {
+          params,
+          ...httpOptions,
+        })
+        .then((response) => {
+          resolve(response?.data);
+        })
+        .catch(async (error) => {
+          if (error?.response?.status === 401) {
+            Logout();
+          }
+          reject(error?.response?.data || error);
+        });
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 
 export const ApiDelete = async (url, params, isAuth = true) => {
-  return new Promise((resolve, reject) => {
-    axios
-      .delete(BaseURL + url, {
-        params,
-        ...getHttpOptions({ ...defaultHeaders, isAuth }),
-      })
-      .then((response) => {
-        resolve(response?.data);
-      })
-      .catch(async (error) => {
-        if (error?.response?.status === 401) {
-          Logout();
-        }
-        reject(error?.response?.data || error);
-      });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const httpOptions = await getHttpOptions({ ...defaultHeaders, isAuth });
+      axios
+        .delete(BaseURL + url, {
+          params,
+          ...httpOptions,
+        })
+        .then((response) => {
+          resolve(response?.data);
+        })
+        .catch(async (error) => {
+          if (error?.response?.status === 401) {
+            Logout();
+          }
+          reject(error?.response?.data || error);
+        });
+    } catch (error) {
+      reject(error);
+    }
   });
 };
 
-export const getHttpOptions = (options = defaultHeaders) => {
+export const getHttpOptions = async (options = defaultHeaders) => {
   let userData = null;
   let headers = {};
 
@@ -103,7 +123,7 @@ export const getHttpOptions = (options = defaultHeaders) => {
       // Server-side: try to get token from cookies
       try {
         const { cookies } = require('next/headers');
-        const cookieStore = cookies();
+        const cookieStore = await cookies();
         const authToken = cookieStore?.get('auth-token')?.value;
 
         if (authToken) {

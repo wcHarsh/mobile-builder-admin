@@ -9,7 +9,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Pencil, Trash, View, GripVertical } from 'lucide-react'
+import { Pencil, Trash, GripVertical } from 'lucide-react'
 import { toast } from 'sonner'
 import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
@@ -34,12 +34,10 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
     const [draggedItem, setDraggedItem] = useState(null)
     const [settings, setSettings] = useState(blockSettingsData || [])
 
-    // Update settings when blockSettingsData changes
     React.useEffect(() => {
         setSettings(blockSettingsData || [])
     }, [blockSettingsData])
 
-    // Drag and Drop Handlers
     const handleDragStart = (e, setting) => {
         setDraggedItem(setting)
         e.dataTransfer.effectAllowed = 'move'
@@ -64,7 +62,6 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
             return
         }
 
-        // Create new array with reordered items
         const draggedIndex = settings.findIndex(item => item.id === draggedItem.id)
         const targetIndex = settings.findIndex(item => item.id === targetSetting.id)
 
@@ -74,7 +71,6 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
 
         setSettings(newSettings)
 
-        // Call API to reorder
         try {
             const reorderedIds = newSettings.map(setting => setting.id)
             const payload = {
@@ -92,7 +88,6 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
         } catch (error) {
             console.error('Error reordering block settings:', error)
             toast.error('Failed to reorder block settings')
-            // Revert the local state on error
             setSettings(blockSettingsData || [])
         }
     }
@@ -114,7 +109,6 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
     }
 
     const onDelete = async (data) => {
-        // Show SweetAlert confirmation
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: `Do you want to delete setting "${data.label}"?`,
@@ -127,10 +121,8 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
             reverseButtons: true
         })
 
-        // If user confirms deletion
         if (result.isConfirmed) {
             try {
-                // Show loading state
                 Swal.fire({
                     title: 'Deleting...',
                     text: 'Please wait while we delete the setting.',
@@ -142,7 +134,6 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
 
                 const deleteResponse = await ApiDelete(`admin/blocks/settings/dev?mainThemeId=${screenid}&mainScreenType=${localStorage.getItem('mainScreenType')}&mainSectionName=${localStorage.getItem('mainSectionName')}&mainBlockName=${localStorage.getItem('mainBlockName')}&mainSettingName=${data.name}`)
 
-                // Show success message
                 Swal.fire({
                     title: 'Deleted!',
                     text: deleteResponse?.message || 'Setting has been deleted successfully.',
@@ -150,10 +141,8 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
                     confirmButtonText: 'OK'
                 })
 
-                // Refresh the page data
                 router.refresh()
             } catch (error) {
-                // Show error message
                 Swal.fire({
                     title: 'Error!',
                     text: error?.message || 'Error deleting setting',

@@ -22,6 +22,7 @@ export default function IconList({ iconData }) {
     const [templateData, setTemplateData] = useState({
         name: '',
         icon: '',
+        id: '',
     })
     const [isEdit, setIsEdit] = useState(false)
     const [searchTerm, setSearchTerm] = useState('')
@@ -31,12 +32,12 @@ export default function IconList({ iconData }) {
         setTemplateData({
             name: data.name,
             icon: data.icon,
+            id: data.id,
         })
         setIsEdit(true)
     }
 
     const onDelete = async (data) => {
-        // Show SweetAlert confirmation
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: `Do you want to delete icon "${data.name}"?`,
@@ -49,10 +50,8 @@ export default function IconList({ iconData }) {
             reverseButtons: true
         })
 
-        // If user confirms deletion
         if (result.isConfirmed) {
             try {
-                // Show loading state
                 Swal.fire({
                     title: 'Deleting...',
                     text: 'Please wait while we delete the icon.',
@@ -62,9 +61,8 @@ export default function IconList({ iconData }) {
                     }
                 })
 
-                const deleteResponse = await ApiDelete(`icons/${data.id}`)
+                const deleteResponse = await ApiDelete(`admin/icons?id=${data.id}`)
 
-                // Show success message
                 Swal.fire({
                     title: 'Deleted!',
                     text: deleteResponse?.message || 'Icon has been deleted successfully.',
@@ -72,10 +70,8 @@ export default function IconList({ iconData }) {
                     confirmButtonText: 'OK'
                 })
 
-                // Refresh the page data
                 router.refresh()
             } catch (error) {
-                // Show error message
                 Swal.fire({
                     title: 'Error!',
                     text: error?.message || 'Error deleting icon',
@@ -91,7 +87,6 @@ export default function IconList({ iconData }) {
         toast.success('Copied to clipboard!')
     }
 
-    // Filter icons based on search term
     const filteredIcons = iconData.filter(icon =>
         icon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         icon.icon.toLowerCase().includes(searchTerm.toLowerCase())
@@ -108,6 +103,7 @@ export default function IconList({ iconData }) {
                         setTemplateData({
                             name: '',
                             icon: '',
+                            id: '',
                         })
                         setIsEdit(false)
                     }}
@@ -193,7 +189,6 @@ export default function IconList({ iconData }) {
                 </Table>
             </div>
 
-            {/* Icon Add/Edit Modal */}
             <IconAddEditModal
                 isOpen={isOpen}
                 setIsOpen={setIsOpen}
