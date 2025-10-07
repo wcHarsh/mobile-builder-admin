@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useParams, useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
+import Badge from './ui/Badge'
 
 export default function SectionSettings({ sectionSettingsData, section, screenid }) {
     console.log('sectionSettingsData', sectionSettingsData)
@@ -172,7 +173,10 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Section Settings</h2>
+                <div className="flex items-center justify-start gap-5">
+                    <h2 className="text-2xl font-bold text-gray-900">Section Settings</h2>
+                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                </div>
                 <Button
                     onClick={() => {
                         setIsOpen(true)

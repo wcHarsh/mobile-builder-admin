@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 import { ApiDelete } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 import BlockAddEditModal from './BlockComponents/BlockAddEditModal'
+import Badge from './ui/Badge'
 
 export default function BlockList({ blockData, section, screenid, blockid }) {
     console.log('blockData', blockData)
@@ -101,7 +102,10 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Blocks</h2>
+                <div className="flex items-center justify-start gap-5">
+                    <h2 className="text-2xl font-bold text-gray-900">Blocks</h2>
+                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                </div>
                 <Button
                     onClick={() => {
                         setIsOpen(true)

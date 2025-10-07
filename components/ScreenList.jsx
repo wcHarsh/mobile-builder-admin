@@ -13,6 +13,7 @@ import {
     Settings,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Badge from "./ui/Badge"
 
 export default function ScreenList({ screenid, screenData }) {
     const router = useRouter()
@@ -30,8 +31,9 @@ export default function ScreenList({ screenid, screenData }) {
 
     return (
         <div className="space-y-4 ">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-start gap-5">
                 <h2 className="text-2xl font-bold text-gray-900">Screens</h2>
+                <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
             </div>
             <input type="text" placeholder="Search" className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg" />
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">

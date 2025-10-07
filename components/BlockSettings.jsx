@@ -15,6 +15,7 @@ import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
 import BlockSettingsAddEditModal from './BlockSettingComponents/BlockSettingsAddEditModal'
+import Badge from './ui/Badge'
 
 export default function BlockSettings({ blockSettingsData, section, screenid, blockid, blocksettings }) {
     console.log('blockSettingsData', blockSettingsData)
@@ -158,7 +159,10 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Block Settings</h2>
+                <div className="flex items-center justify-start gap-5">
+                    <h2 className="text-2xl font-bold text-gray-900">Block Settings</h2>
+                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                </div>
                 <Button
                     onClick={() => {
                         setIsOpen(true)

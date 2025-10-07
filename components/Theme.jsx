@@ -1,13 +1,17 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 
 export default function Theme({ themeData }) {
+    const handleThemeClick = (item) => {
+        localStorage.setItem('mainThemeName', item?.name)
+    }
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-5'>
             {themeData?.map((item) => (
-                <div key={item?.id} className='rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow'>
+                <div key={item?.id} onClick={() => handleThemeClick(item)} className='rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow' >
                     <Link href={`/themes/${item?.id}`}>
-                        <div className="relative">
+                        <div className="relative" >
                             <Image
                                 src={item?.images[0]}
                                 alt={item?.name}

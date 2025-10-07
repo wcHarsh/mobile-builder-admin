@@ -18,6 +18,7 @@ import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
 import { ApiDelete } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
+import Badge from './ui/Badge'
 
 export default function SectionList({ sectionData, screenData, section }) {
     console.log('sectionData', sectionData)
@@ -97,7 +98,10 @@ export default function SectionList({ sectionData, screenData, section }) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Sections</h2>
+                <div className="flex items-center justify-start gap-5">
+                    <h2 className="text-2xl font-bold text-gray-900">Sections</h2>
+                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                </div>
                 <Button
                     onClick={() => {
                         setIsOpen(true)

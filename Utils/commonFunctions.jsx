@@ -6,7 +6,7 @@ export const Logout = () => {
         localStorage.removeItem("mainScreenType");
         localStorage.removeItem("mainSectionName");
         localStorage.removeItem("mainBlockName");
-
+        localStorage.removeItem("mainThemeName");
         // Clear all cookies
         document.cookie = "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "mobile_builder_user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
