@@ -167,7 +167,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                                         {sectionItem.isVisible ? 'Visible' : 'Hidden'}
                                     </span> */}
                                     {sectionItem?.hasBlocks ? (
-                                        <Button variant="outline" size="sm" className="bg-green-600 text-white cursor-pointer hover:bg-green-700" onClick={() => router.push(`/themes/${screenid}/${section}/block/${sectionItem.id}`)}>See Blocks</Button>
+                                        <Button variant="outline" size="sm" className="bg-green-600 text-white cursor-pointer hover:bg-green-700" onClick={() => { router.push(`/themes/${screenid}/${section}/block/${sectionItem.id}`); setLocalStorageItem('mainSectionName', sectionItem.name) }}>See Blocks</Button>
                                     ) : (
                                         <span className="text-sm text-center text-gray-600">No blocks</span>
                                     )}

@@ -102,49 +102,63 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
     useEffect(() => {
         if (isOpen) {
             if (isEdit && templateData) {
-                setSelectedType(templateData.type || '')
-                setValue('label', templateData.label || '')
-                setValue('name', templateData.name || '')
-                setValue('type', templateData.type || '')
-                if (templateData.type === 'collection' || templateData.type === 'product' || templateData.type === 'multi_collections') {
-                    setValue('value', [])
-                } else if (templateData.type === 'toggle') {
-                    const toggleValue = templateData.value ? 'true' : 'false'
-                    setTimeout(() => {
-                        setValue('value', toggleValue)
-                        trigger('value')
-                    }, 10)
-                } else if (templateData.type === 'number' || templateData.type === 'range') {
-                    setValue('value', templateData.value !== null && templateData.value !== undefined ? templateData.value : '')
-                } else {
-                    setValue('value', templateData.value || '')
+                const formData = {
+                    label: templateData.label || '',
+                    name: templateData.name || '',
+                    type: templateData.type || '',
+                    value: templateData.value || '',
+                    options: templateData.options || [],
+                    min: templateData.min || null,
+                    max: templateData.max || null,
+                    navigationValue: templateData.navigationValue || '',
+                    limit: templateData.limit || null,
+                    suffix: templateData.suffix || null,
                 }
-                setValue('options', templateData.options || [])
+
+                // Handle value based on type
+                if (templateData.type === 'collection' || templateData.type === 'product' || templateData.type === 'multi_collections') {
+                    formData.value = []
+                } else if (templateData.type === 'toggle') {
+                    formData.value = templateData.value ? 'true' : 'false'
+                } else if (templateData.type === 'number' || templateData.type === 'range') {
+                    formData.value = templateData.value !== null && templateData.value !== undefined ? templateData.value : ''
+                } else {
+                    formData.value = templateData.value || ''
+                }
+
+                // Reset form with all data at once
+                reset(formData)
+                setSelectedType(templateData.type || '')
+
+                // Set options for select
                 if (templateData.options && Array.isArray(templateData.options)) {
-                    setSelectedOptions(templateData.options.map(option => ({ value: option, label: option })))
+                    const options = templateData.options.map(option => ({ value: option, label: option }))
+                    setSelectedOptions(options)
                 } else {
                     setSelectedOptions([])
                 }
-                setValue('min', templateData.min || null)
-                setValue('max', templateData.max || null)
-                setValue('navigationValue', templateData.navigationValue || '')
-                setValue('limit', templateData.limit || null)
-                setValue('suffix', templateData.suffix || null)
             } else {
-                reset()
+                // Reset form to default values for new entry
+                const defaultFormData = {
+                    label: '',
+                    name: '',
+                    type: '',
+                    value: '',
+                    options: [],
+                    min: null,
+                    max: null,
+                    navigationValue: '',
+                    limit: null,
+                    suffix: null,
+                }
+                reset(defaultFormData)
                 setSelectedType('')
                 setSelectedOptions([])
             }
         }
-    }, [isOpen, isEdit, templateData, setValue, reset])
+    }, [isOpen, isEdit, templateData, reset])
 
-    useEffect(() => {
-        if (selectedType === 'collection' || selectedType === 'product' || selectedType === 'multi_collections') {
-            setValue('value', [])
-        } else if (selectedType && selectedType !== '') {
-            setValue('value', '')
-        }
-    }, [selectedType, setValue])
+
     const onSubmit = async (data) => {
         if (data.type === 'collection' || data.type === 'product' || data.type === 'multi_collections') {
             data.value = []
@@ -153,7 +167,6 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
             data.value = data.value === 'true' || data.value === true
         }
 
-        // Convert value to number for number and range types
         if (data.type === 'number' || data.type === 'range') {
             if (data.value === '' || data.value === null || data.value === undefined || isNaN(data.value)) {
                 data.value = 0
@@ -192,7 +205,6 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
         if (data.suffix !== null && data.suffix !== undefined && data.suffix !== '') {
             payload.suffix = data.suffix
         }
-        console.log('payload', payload)
         try {
             if (isEdit) {
                 const updateResponse = await ApiPut(`admin/blocks/settings/dev`, payload)
@@ -269,21 +281,19 @@ export default function BlockSettingsAddEditModal({ isOpen, setIsOpen, templateD
                                     <select
                                         {...register('type')}
                                         onChange={(e) => {
-                                            setSelectedType(e.target.value)
-                                            setValue('type', e.target.value)
-                                            reset({
-                                                type: e.target.value,
-                                                value: e.target.value === 'collection' || e.target.value === 'product' || e.target.value === 'multi_collections' ? [] : '',
-                                                label: watch('label') || '',
-                                                name: watch('name') || '',
-                                                options: watch('options') || [],
-                                                min: watch('min') || null,
-                                                max: watch('max') || null,
-                                                navigationValue: watch('navigationValue') || '',
-                                                limit: watch('limit') || null,
-                                                suffix: watch('suffix') || null,
-                                            })
+                                            const newType = e.target.value
+                                            setSelectedType(newType)
+                                            setValue('type', newType)
+
+                                            if (newType === 'collection' || newType === 'product' || newType === 'multi_collections') {
+                                                setValue('value', [])
+                                            } else {
+                                                setValue('value', '')
+                                            }
+
+                                            // Clear options when type changes
                                             setSelectedOptions([])
+                                            setValue('options', [])
                                         }}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
