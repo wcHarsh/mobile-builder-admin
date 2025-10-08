@@ -18,11 +18,25 @@ export const ApiGet = async (url, params, isAuth = true) => {
       axios
         .get(BaseURL + url, { params, ...httpOptions })
         .then((response) => {
+          console.log('response', response)
           resolve(response?.data);
         })
         .catch(async (error) => {
-          if (error?.response?.status === 401) {
+          console.log('errordemo', error)
+          console.log('error.status:', error?.status)
+          console.log('error.response?.status:', error?.response?.status)
+          if (error?.response?.status === 401 || error?.status === 401) {
+            console.log('401 detected, calling Logout()')
             Logout();
+
+            // For server-side 401 errors, we need to throw a special error that the client can catch
+            if (typeof window === 'undefined') {
+              const serverError = new Error('Session expired. Please log in again.');
+              serverError.status = 401;
+              serverError.isSessionExpired = true;
+              reject(serverError);
+              return;
+            }
           }
           reject(error?.response?.data || error);
         });
@@ -45,7 +59,7 @@ export const ApiPost = async (url, body, params, isAuth = true) => {
           resolve(response?.data);
         })
         .catch(async (error) => {
-          if (error?.response?.status === 401 && window.location.pathname !== '/login') {
+          if ((error?.response?.status === 401 || error?.status === 401) && typeof window !== 'undefined' && window.location.pathname !== '/login') {
             Logout();
           }
           reject(error?.response?.data || error);
@@ -69,7 +83,7 @@ export const ApiPut = async (url, body, params, isAuth = true) => {
           resolve(response?.data);
         })
         .catch(async (error) => {
-          if (error?.response?.status === 401) {
+          if (error?.response?.status === 401 || error?.status === 401) {
             Logout();
           }
           reject(error?.response?.data || error);
@@ -93,7 +107,7 @@ export const ApiDelete = async (url, params, isAuth = true) => {
           resolve(response?.data);
         })
         .catch(async (error) => {
-          if (error?.response?.status === 401) {
+          if (error?.response?.status === 401 || error?.status === 401) {
             Logout();
           }
           reject(error?.response?.data || error);

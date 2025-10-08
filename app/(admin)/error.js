@@ -1,13 +1,85 @@
 'use client'
+import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Home, RotateCcw } from 'lucide-react'
 
 export default function Error({ error, reset }) {
     const router = useRouter()
 
-    const handleGoToDashboard = () => {
-        router.push('/dashboard')
+    const getErrorMessage = (error) => {
+        if (!error) return 'Unknown error occurred'
+
+        if (error.isSessionExpired || error.message === 'Session expired. Please log in again.') {
+            return 'Your session has expired. Please log in again.'
+        }
+
+        if (typeof error === 'string') {
+            try {
+                const parsed = JSON.parse(error)
+                return parsed.error?.message || parsed.message || error
+            } catch {
+                return error
+            }
+        }
+
+        if (typeof error === 'object') {
+            if (error.message && typeof error.message === 'string') {
+                try {
+                    const parsedMessage = JSON.parse(error.message)
+                    if (parsedMessage.error && parsedMessage.error.message) {
+                        return parsedMessage.error.message
+                    }
+                    if (parsedMessage.message) {
+                        return parsedMessage.message
+                    }
+                } catch {
+                    return error.message
+                }
+            }
+
+            if (error.error && error.error.message) {
+                return error.error.message
+            }
+
+            if (error.message) {
+                return error.message
+            }
+
+            if (error.digest) {
+                return `Error occurred (${error.digest})`
+            }
+        }
+
+        return 'We encountered an unexpected error. Don\'t worry, our team has been notified and is working to fix it.'
     }
+
+    const handleGoToDashboard = () => {
+        if (isSessionExpired) {
+            router.push('/login')
+        } else {
+            router.push('/dashboard')
+        }
+    }
+
+    const isSessionExpired = error.isSessionExpired || error.message === 'Session expired. Please log in again.';
+    React.useEffect(() => {
+        if (isSessionExpired) {
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem("mobile_builder_user_data");
+                localStorage.removeItem("persist:root");
+                localStorage.removeItem("mainScreenType");
+                localStorage.removeItem("mainSectionName");
+                localStorage.removeItem("mainBlockName");
+                localStorage.removeItem("mainThemeName");
+
+                document.cookie = "auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie = "mobile_builder_user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 100);
+        }
+    }, [isSessionExpired, router]);
 
     return (
         <div className="bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -30,19 +102,18 @@ export default function Error({ error, reset }) {
                     </div>
 
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                        Oops! Something went wrong
+                        {isSessionExpired ? 'Session Expired' : 'Oops! Something went wrong'}
                     </h1>
 
                     <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
-                        We encountered an unexpected error. Don't worry, our team has been notified and is working to fix it.
+                        {getErrorMessage(error)}
                     </p>
 
-                    {/* Error Details (Development Only) */}
                     {process.env.NODE_ENV === 'development' && error && (
                         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 max-w-2xl mx-auto">
                             <h3 className="text-sm font-medium text-red-800 mb-2">Error Details:</h3>
                             <pre className="text-xs text-red-700 overflow-auto">
-                                {error.message || 'Unknown error occurred'}
+                                {getErrorMessage(error)}
                             </pre>
                         </div>
                     )}
@@ -53,7 +124,7 @@ export default function Error({ error, reset }) {
                             className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                         >
                             <Home className="size-5 mr-2" />
-                            Go to Dashboard
+                            {isSessionExpired ? 'Go to Login' : 'Go to Dashboard'}
                         </button>
 
                         <button

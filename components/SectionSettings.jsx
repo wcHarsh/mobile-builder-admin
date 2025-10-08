@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { getLocalStorageItem } from '@/Utils/localStorage'
 import {
     Table,
     TableBody,
@@ -83,8 +84,8 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
             const reorderedIds = newSettings.map(setting => setting.id)
             const payload = {
                 mainThemeId: parseInt(screenid),
-                mainScreenType: localStorage.getItem('mainScreenType'),
-                mainSectionName: localStorage.getItem('mainSectionName'),
+                mainScreenType: getLocalStorageItem('mainScreenType'),
+                mainSectionName: getLocalStorageItem('mainSectionName'),
                 mainSettingIds: reorderedIds
             }
 
@@ -145,7 +146,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
                     }
                 })
 
-                const deleteResponse = await ApiDelete(`admin/sections/settings/dev/?mainThemeId=${screenid}&mainScreenType=${localStorage.getItem('mainScreenType')}&mainSectionName=${localStorage.getItem('mainSectionName')}&mainSettingName=${data.name}`)
+                const deleteResponse = await ApiDelete(`admin/sections/settings/dev/?mainThemeId=${screenid}&mainScreenType=${getLocalStorageItem('mainScreenType')}&mainSectionName=${getLocalStorageItem('mainSectionName')}&mainSettingName=${data.name}`)
 
                 // Show success message
                 Swal.fire({
@@ -175,7 +176,7 @@ export default function SectionSettings({ sectionSettingsData, section, screenid
             <div className="flex items-center justify-between">
                 <div className="flex items-center justify-start gap-5">
                     <h2 className="text-2xl font-bold text-gray-900">Section Settings</h2>
-                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                    <Badge variant="success">{getLocalStorageItem('mainThemeName')}</Badge>
                 </div>
                 <Button
                     onClick={() => {

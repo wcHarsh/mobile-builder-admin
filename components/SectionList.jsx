@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { getLocalStorageItem, setLocalStorageItem } from '@/Utils/localStorage'
 import { useParams, useRouter } from 'next/navigation'
 import {
     Table,
@@ -100,7 +101,7 @@ export default function SectionList({ sectionData, screenData, section }) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center justify-start gap-5">
                     <h2 className="text-2xl font-bold text-gray-900">Sections</h2>
-                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                    <Badge variant="success">{getLocalStorageItem('mainThemeName')}</Badge>
                 </div>
                 <Button
                     onClick={() => {
@@ -199,8 +200,8 @@ export default function SectionList({ sectionData, screenData, section }) {
                                             size="sm"
                                             className="size-8 p-0 cursor-pointer hover:bg-green-50 hover:border-green-300 group transition-all duration-200"
                                             onClick={() => {
-                                                router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`),
-                                                    localStorage.setItem('mainSectionName', sectionItem.name)
+                                                setLocalStorageItem('mainSectionName', sectionItem.name)
+                                                router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`)
                                             }}
                                         >
                                             <Settings className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />

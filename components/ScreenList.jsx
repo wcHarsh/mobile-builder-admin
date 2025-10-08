@@ -14,9 +14,11 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import Badge from "./ui/Badge"
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 export default function ScreenList({ screenid, screenData }) {
     const router = useRouter()
+    const [mainThemeName] = useLocalStorage('mainThemeName', '')
     if (!screenData || screenData.length === 0) {
         return (
             <div className="space-y-4">
@@ -33,7 +35,7 @@ export default function ScreenList({ screenid, screenData }) {
         <div className="space-y-4 ">
             <div className="flex items-center justify-start gap-5">
                 <h2 className="text-2xl font-bold text-gray-900">Screens</h2>
-                <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                <Badge variant="success">{mainThemeName}</Badge>
             </div>
             <input type="text" placeholder="Search" className="w-1/3 outline-none bg-white p-2 border border-gray-200 rounded-lg" />
             <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
@@ -64,8 +66,10 @@ export default function ScreenList({ screenid, screenData }) {
                                             size="sm"
                                             className="size-8 p-0  cursor-pointer hover:bg-green-50 hover:border-green-300 hover:text-green-600 group transition-all duration-200"
                                             onClick={() => {
-                                                router.push(`/themes/${screenid}/${screen.id}`),
+                                                if (typeof window !== 'undefined') {
                                                     localStorage.setItem('mainScreenType', screen.type)
+                                                }
+                                                router.push(`/themes/${screenid}/${screen.id}`)
                                             }}
                                         >
                                             <Settings className="size-4" />

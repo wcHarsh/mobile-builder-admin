@@ -1,10 +1,11 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
+import { setLocalStorageItem } from '@/Utils/localStorage'
 
 export default function Theme({ themeData }) {
     const handleThemeClick = (item) => {
-        localStorage.setItem('mainThemeName', item?.name)
+        setLocalStorageItem('mainThemeName', item?.name)
     }
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 py-5'>

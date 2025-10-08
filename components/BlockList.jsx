@@ -1,5 +1,6 @@
 'use client'
 import React, { useState } from 'react'
+import { getLocalStorageItem, setLocalStorageItem } from '@/Utils/localStorage'
 import { useParams, useRouter } from 'next/navigation'
 import {
     Table,
@@ -74,7 +75,7 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                     }
                 })
 
-                const deleteResponse = await ApiDelete(`admin/sections/blocks/dev?mainThemeId=${screenid}&mainScreenType=${localStorage.getItem('mainScreenType')}&mainSectionName=${localStorage.getItem('mainSectionName')}&mainBlockName=${data.name}`)
+                const deleteResponse = await ApiDelete(`admin/sections/blocks/dev?mainThemeId=${screenid}&mainScreenType=${getLocalStorageItem('mainScreenType')}&mainSectionName=${getLocalStorageItem('mainSectionName')}&mainBlockName=${data.name}`)
 
                 // Show success message
                 Swal.fire({
@@ -104,7 +105,7 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center justify-start gap-5">
                     <h2 className="text-2xl font-bold text-gray-900">Blocks</h2>
-                    <Badge variant="success">{localStorage.getItem('mainThemeName')}</Badge>
+                    <Badge variant="success">{getLocalStorageItem('mainThemeName')}</Badge>
                 </div>
                 <Button
                     onClick={() => {
@@ -213,8 +214,8 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                                                 size="sm"
                                                 className="size-8 p-0 cursor-pointer hover:bg-red-50 hover:border-red-300 group transition-all duration-200"
                                                 onClick={() => {
+                                                    setLocalStorageItem('mainBlockName', block.name)
                                                     router.push(`/themes/${screenid}/${section}/block/${blockid}/${block?.id}`)
-                                                    localStorage.setItem('mainBlockName', block.name)
                                                 }}
                                             >
                                                 <Settings className="size-4 text-gray-600 group-hover:text-red-600 transition-colors duration-200" />

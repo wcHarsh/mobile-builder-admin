@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 import { ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import { useParams, useRouter } from 'next/navigation'
 import CreatableSelect from 'react-select/creatable'
+import { getLocalStorageItem } from '@/Utils/localStorage'
 
 // Yup validation schema
 const sectionSettingsSchema = yup.object({
@@ -177,8 +178,8 @@ export default function SectionSettingsAddEditModal({ isOpen, setIsOpen, templat
         }
         const payload = {
             mainThemeId: Number(screenid),
-            mainScreenType: localStorage.getItem('mainScreenType'),
-            mainSectionName: localStorage.getItem('mainSectionName'),
+            mainScreenType: getLocalStorageItem('mainScreenType'),
+            mainSectionName: getLocalStorageItem('mainSectionName'),
             label: data.label,
             name: data.name,
             type: data.type,
