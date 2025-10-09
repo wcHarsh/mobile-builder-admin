@@ -13,21 +13,17 @@ export function middleware(request) {
 
     // Don't redirect if it's an error page (let the error page handle the redirect)
     if (isErrorPage) {
-        console.log('Middleware - Skipping redirect for error page')
         return NextResponse.next()
     }
 
     if (isAuthRoute && token) {
-        console.log('Middleware - Redirecting to dashboard (auth route with token)')
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
     if (!isAuthRoute && !token && pathname !== '/') {
-        console.log('Middleware - Redirecting to login (no token)')
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    console.log('Middleware - No redirect needed')
     return NextResponse.next()
 }
 

@@ -159,7 +159,7 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                                         {block.name}
                                     </TableCell>
                                     <TableCell className="text-sm text-gray-600">
-                                        {block.orderIndex}
+                                        {Number(block.orderIndex).toFixed(0)}
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center space-x-2">

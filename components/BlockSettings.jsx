@@ -252,7 +252,7 @@ export default function BlockSettings({ blockSettingsData, section, screenid, bl
                                         ) : setting.value || 'No value'}
                                     </TableCell>
                                     <TableCell className="text-sm text-gray-600">
-                                        {setting.orderIndex}
+                                        {Number(setting.orderIndex).toFixed(0)}
                                     </TableCell>
                                     <TableCell className="text-sm text-gray-600">
                                         {new Date(setting.createdAt).toLocaleDateString()}

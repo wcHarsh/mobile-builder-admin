@@ -157,7 +157,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                                     {sectionItem.description || 'No description'}
                                 </TableCell>
                                 <TableCell className="text-sm text-gray-600">
-                                    {sectionItem.orderIndex}
+                                    {Number(sectionItem.orderIndex).toFixed(0)}
                                 </TableCell>
                                 <TableCell>
                                     {/* <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${sectionItem.isVisible
