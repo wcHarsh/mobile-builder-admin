@@ -48,7 +48,7 @@ export default function LoginPage() {
             if (response?.success === true) {
                 // Set authentication cookie
                 const token = response.data?.token || response.token || 'your-auth-token-here'
-                document.cookie = `auth-token=${token}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`
+                document.cookie = `auth-token=${token}; path=/; SameSite=Lax`
                 localStorage.setItem('mobile_builder_user_data', JSON.stringify(response.data))
                 toast.success(response?.message || 'Login successful!')
                 router.push('/dashboard')
