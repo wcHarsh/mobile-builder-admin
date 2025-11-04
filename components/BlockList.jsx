@@ -13,11 +13,12 @@ import {
 import {
     Pencil,
     Trash,
-    Settings
+    Settings,
+    GripVertical
 } from 'lucide-react'
 import { Button } from './ui/button'
 import { toast } from 'sonner'
-import { ApiDelete } from '@/Utils/axiosFunctions'
+import { ApiDelete, ApiPut } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 import BlockAddEditModal from './BlockComponents/BlockAddEditModal'
 import Badge from './ui/Badge'
@@ -34,6 +35,13 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
         options: null
     })
     const [isEdit, setIsEdit] = useState(false)
+    const [draggedItem, setDraggedItem] = useState(null)
+    const [blocks, setBlocks] = useState(blockData || [])
+
+    // Update blocks when blockData changes
+    React.useEffect(() => {
+        setBlocks(blockData || [])
+    }, [blockData])
 
     const onEdit = (data) => {
         console.log('data', data)
@@ -99,6 +107,63 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
         }
     }
 
+    // Drag and Drop Handlers
+    const handleDragStart = (e, block) => {
+        setDraggedItem(block)
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.outerHTML)
+        e.target.style.opacity = '0.5'
+    }
+
+    const handleDragEnd = (e) => {
+        e.target.style.opacity = '1'
+        setDraggedItem(null)
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+    }
+
+    const handleDrop = async (e, targetBlock) => {
+        e.preventDefault()
+
+        if (!draggedItem || draggedItem.id === targetBlock.id) {
+            return
+        }
+
+        // Create new array with reordered items
+        const draggedIndex = blocks.findIndex(item => item.id === draggedItem.id)
+        const targetIndex = blocks.findIndex(item => item.id === targetBlock.id)
+
+        const newBlocks = [...blocks]
+        const [draggedBlock] = newBlocks.splice(draggedIndex, 1)
+        newBlocks.splice(targetIndex, 0, draggedBlock)
+
+        setBlocks(newBlocks)
+
+        // Call API to reorder
+        try {
+            const reorderedIds = newBlocks.map(block => block.id)
+            const payload = {
+                mainThemeId: parseInt(screenid),
+                mainScreenType: getLocalStorageItem('mainScreenType'),
+                mainSectionName: getLocalStorageItem('mainSectionName'),
+                mainBlockIds: reorderedIds
+            }
+
+            await ApiPut('admin/sections/blocks/dev/reorder', payload)
+
+            toast.success('Blocks reordered successfully')
+            router.refresh()
+        } catch (error) {
+            console.error('Error reordering blocks:', error)
+            toast.error('Failed to reorder blocks')
+            // Revert the local state on error
+            setBlocks(blockData || [])
+        }
+    }
+
 
     return (
         <div className="space-y-4">
@@ -137,6 +202,7 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-gray-50">
+                            <TableHead className="w-12 font-semibold text-gray-700">Drag</TableHead>
                             <TableHead className="font-semibold text-gray-700">ID</TableHead>
                             <TableHead className="font-semibold text-gray-700">Name</TableHead>
                             <TableHead className="font-semibold text-gray-700">Order</TableHead>
@@ -146,12 +212,22 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {blockData.map((block) => {
+                        {blocks.map((block) => {
                             return (
                                 <TableRow
                                     key={block.id}
-                                    className="hover:bg-gray-50 border-b border-gray-100"
+                                    className="hover:bg-gray-50 border-b border-gray-100 cursor-move"
+                                    draggable
+                                    onDragStart={(e) => handleDragStart(e, block)}
+                                    onDragEnd={handleDragEnd}
+                                    onDragOver={handleDragOver}
+                                    onDrop={(e) => handleDrop(e, block)}
                                 >
+                                    <TableCell className="w-12">
+                                        <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded">
+                                            <GripVertical className="size-4 text-gray-400" />
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="font-medium text-gray-900">
                                         {block.id}
                                     </TableCell>

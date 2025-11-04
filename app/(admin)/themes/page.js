@@ -7,7 +7,7 @@ export default async function ThemesPage() {
 
     const res = await ApiGet(`admin/themes`)
     const themeData = res?.data || []
-
+    console.log('restheme', res)
     return (
         <>
             <div className="mb-6">

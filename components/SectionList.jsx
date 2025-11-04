@@ -13,13 +13,15 @@ import {
 import {
     Pencil,
     Trash,
-    Settings
+    Settings,
+    GripVertical
 } from 'lucide-react'
 import SectionAddEditModal from './SectionComponents/SectionAddEditModal'
 import { Button } from './ui/button'
-import { ApiDelete } from '@/Utils/axiosFunctions'
+import { ApiDelete, ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
 import Badge from './ui/Badge'
+import { toast } from 'sonner'
 
 export default function SectionList({ sectionData, screenData, section }) {
     console.log('sectionData', sectionData)
@@ -36,6 +38,13 @@ export default function SectionList({ sectionData, screenData, section }) {
         is_visible: true
     })
     const [isEdit, setIsEdit] = useState(false)
+    const [draggedItem, setDraggedItem] = useState(null)
+    const [sections, setSections] = useState(sectionData || [])
+
+    // Update sections when sectionData changes
+    React.useEffect(() => {
+        setSections(sectionData || [])
+    }, [sectionData])
 
     const onEdit = (data) => {
         console.log('data', data)
@@ -96,6 +105,61 @@ export default function SectionList({ sectionData, screenData, section }) {
         }
     }
 
+    // Drag and Drop Handlers
+    const handleDragStart = (e, section) => {
+        setDraggedItem(section)
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/html', e.target.outerHTML)
+        e.target.style.opacity = '0.5'
+    }
+
+    const handleDragEnd = (e) => {
+        e.target.style.opacity = '1'
+        setDraggedItem(null)
+    }
+
+    const handleDragOver = (e) => {
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+    }
+
+    const handleDrop = async (e, targetSection) => {
+        e.preventDefault()
+
+        if (!draggedItem || draggedItem.id === targetSection.id) {
+            return
+        }
+
+        // Create new array with reordered items
+        const draggedIndex = sections.findIndex(item => item.id === draggedItem.id)
+        const targetIndex = sections.findIndex(item => item.id === targetSection.id)
+
+        const newSections = [...sections]
+        const [draggedSection] = newSections.splice(draggedIndex, 1)
+        newSections.splice(targetIndex, 0, draggedSection)
+
+        setSections(newSections)
+
+        try {
+            const reorderedIds = newSections.map(section => section.id)
+            const payload = {
+                mainThemeId: parseInt(screenid),
+                mainScreenType: screenData,
+                mainSectionIds: reorderedIds
+            }
+
+            await ApiPut('admin/sections/dev/reorder', payload)
+
+            toast.success('Sections reordered successfully')
+            router.refresh()
+        } catch (error) {
+            console.error('Error reordering sections:', error)
+            toast.error('Failed to reorder sections')
+            // Revert the local state on error
+            setSections(sectionData || [])
+        }
+    }
+
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -126,6 +190,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                 <Table>
                     <TableHeader>
                         <TableRow className="bg-gray-50">
+                            <TableHead className="w-12 font-semibold text-gray-700">Drag</TableHead>
                             <TableHead className="font-semibold text-gray-700">Screen ID</TableHead>
                             <TableHead className="font-semibold text-gray-700">Section ID</TableHead>
                             <TableHead className="font-semibold text-gray-700">Type</TableHead>
@@ -137,8 +202,21 @@ export default function SectionList({ sectionData, screenData, section }) {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sectionData.map((sectionItem) => (
-                            <TableRow key={sectionItem.id} className="hover:bg-gray-50 border-b border-gray-100">
+                        {sections.map((sectionItem) => (
+                            <TableRow
+                                key={sectionItem.id}
+                                className="hover:bg-gray-50 border-b border-gray-100 cursor-move"
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, sectionItem)}
+                                onDragEnd={handleDragEnd}
+                                onDragOver={handleDragOver}
+                                onDrop={(e) => handleDrop(e, sectionItem)}
+                            >
+                                <TableCell className="w-12">
+                                    <div className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded">
+                                        <GripVertical className="size-4 text-gray-400" />
+                                    </div>
+                                </TableCell>
                                 <TableCell className="font-medium text-gray-900">
                                     {sectionItem.screenId}
                                 </TableCell>
@@ -201,7 +279,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                                             className="size-8 p-0 cursor-pointer hover:bg-green-50 hover:border-green-300 group transition-all duration-200"
                                             onClick={() => {
                                                 setLocalStorageItem('mainSectionName', sectionItem.name)
-                                                router.push(`/themes/${screenid}/${sectionData[0]?.screenId}/${sectionItem.id}`)
+                                                router.push(`/themes/${screenid}/${sections[0]?.screenId}/${sectionItem.id}`)
                                             }}
                                         >
                                             <Settings className="size-4 text-gray-600 group-hover:text-green-600 transition-colors duration-200" />
