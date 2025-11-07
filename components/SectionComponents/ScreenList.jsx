@@ -13,7 +13,7 @@ import {
     Settings,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import Badge from "./ui/Badge"
+import Badge from "../ui/Badge"
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 export default function ScreenList({ screenid, screenData }) {

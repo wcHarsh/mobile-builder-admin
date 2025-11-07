@@ -1,6 +1,5 @@
-import BlockList from '@/components/BlockList'
+import BlockList from '@/components/BlockComponents/BlockList'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import SectionSettings from '@/components/SectionSettings'
 import { ApiGet } from '@/Utils/axiosFunctions'
 import React, { Suspense } from 'react'
 

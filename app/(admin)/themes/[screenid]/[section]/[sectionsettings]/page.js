@@ -1,5 +1,5 @@
 import LoadingSpinner from '@/components/LoadingSpinner'
-import SectionSettings from '@/components/SectionSettings'
+import SectionSettings from '@/components/SectionSettingComponents/SectionSettings'
 import { ApiGet } from '@/Utils/axiosFunctions'
 import React, { Suspense } from 'react'
 

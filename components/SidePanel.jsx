@@ -2,7 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Folder, Mail } from 'lucide-react'
+import { Folder, Mail, Package } from 'lucide-react'
 
 const SidePanel = ({ isOpen, onClose }) => {
     const pathname = usePathname()
@@ -57,6 +57,11 @@ const SidePanel = ({ isOpen, onClose }) => {
             name: 'Integration Category',
             href: '/integration-category',
             icon: <Folder className="w-5 h-5" />
+        },
+        {
+            name: 'Integration Apps',
+            href: '/integration-apps',
+            icon: <Package className="w-5 h-5" />
         },
 
     ]

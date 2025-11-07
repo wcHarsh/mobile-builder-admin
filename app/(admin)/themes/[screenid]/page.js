@@ -1,5 +1,5 @@
 import LoadingSpinner from '@/components/LoadingSpinner'
-import ScreenList from '@/components/ScreenList'
+import ScreenList from '@/components/SectionComponents/ScreenList'
 import { ApiGet } from '@/Utils/axiosFunctions'
 import { Suspense } from 'react'
 

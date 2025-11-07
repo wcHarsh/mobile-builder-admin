@@ -15,8 +15,8 @@ import { toast } from 'sonner'
 import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
-import BlockSettingsAddEditModal from './BlockSettingComponents/BlockSettingsAddEditModal'
-import Badge from './ui/Badge'
+import Badge from '../ui/Badge'
+import BlockSettingsAddEditModal from './BlockSettingsAddEditModal'
 
 export default function BlockSettings({ blockSettingsData, section, screenid, blockid, blocksettings }) {
     console.log('blockSettingsData', blockSettingsData)

@@ -16,12 +16,12 @@ import {
     Settings,
     GripVertical
 } from 'lucide-react'
-import { Button } from './ui/button'
+import { Button } from '../ui/button'
 import { toast } from 'sonner'
-import { ApiDelete, ApiPut } from '@/Utils/axiosFunctions'
+import { ApiDelete, ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import Swal from 'sweetalert2'
-import BlockAddEditModal from './BlockComponents/BlockAddEditModal'
-import Badge from './ui/Badge'
+import BlockAddEditModal from './BlockAddEditModal'
+import Badge from '../ui/Badge'
 
 export default function BlockList({ blockData, section, screenid, blockid }) {
     console.log('blockData', blockData)
@@ -152,7 +152,7 @@ export default function BlockList({ blockData, section, screenid, blockid }) {
                 mainBlockIds: reorderedIds
             }
 
-            await ApiPut('admin/sections/blocks/dev/reorder', payload)
+            await ApiPost('admin/sections/blocks/dev/reorder', payload)
 
             toast.success('Blocks reordered successfully')
             router.refresh()

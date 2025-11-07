@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Pencil, Trash, View, GripVertical } from 'lucide-react'
-import SectionSettingsAddEditModal from './SectionComponents/SectionSettingsAddEditModal'
 import { toast } from 'sonner'
 import { ApiDelete, ApiPost } from '@/Utils/axiosFunctions'
 import { useParams, useRouter } from 'next/navigation'
 import Swal from 'sweetalert2'
-import Badge from './ui/Badge'
+import Badge from '../ui/Badge'
+import SectionSettingsAddEditModal from '../SectionComponents/SectionSettingsAddEditModal'
 
 export default function SectionSettings({ sectionSettingsData, section, screenid }) {
     console.log('sectionSettingsData', sectionSettingsData)

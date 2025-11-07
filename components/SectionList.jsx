@@ -148,7 +148,7 @@ export default function SectionList({ sectionData, screenData, section }) {
                 mainSectionIds: reorderedIds
             }
 
-            await ApiPut('admin/sections/dev/reorder', payload)
+            await ApiPost('admin/sections/dev/reorder', payload)
 
             toast.success('Sections reordered successfully')
             router.refresh()
