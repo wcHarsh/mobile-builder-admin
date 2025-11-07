@@ -1,6 +1,6 @@
 'use client'
 import { ApiGet, ApiDelete } from '@/Utils/axiosFunctions'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import {
     Table,
@@ -10,7 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Pencil, Trash } from 'lucide-react'
+import { Pencil, Trash, Search } from 'lucide-react'
 import Badge from "@/components/ui/Badge"
 import Image from 'next/image'
 import IntegrationAppAddEditModal from './IntegrationAppAddEditModal'
@@ -24,11 +24,14 @@ export default function IntegrationAppList() {
     const [isOpen, setIsOpen] = useState(false)
     const [templateData, setTemplateData] = useState(null)
     const [isEdit, setIsEdit] = useState(false)
+    const [searchTerm, setSearchTerm] = useState('')
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
 
-    const getIntegrationAppData = async () => {
+    const getIntegrationAppData = useCallback(async (search = '') => {
         try {
             setLoading(true)
-            const res = await ApiGet('admin/integrations')
+            const params = search ? { search } : {}
+            const res = await ApiGet('admin/integrations', params)
             const integrationAppData = res?.data || []
             setIntegrationAppData(integrationAppData)
         } catch (error) {
@@ -36,7 +39,7 @@ export default function IntegrationAppList() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
 
     const getCategories = async () => {
         try {
@@ -50,7 +53,20 @@ export default function IntegrationAppList() {
     }
 
     useEffect(() => {
-        getIntegrationAppData()
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm)
+        }, 500)
+
+        return () => {
+            clearTimeout(timer)
+        }
+    }, [searchTerm])
+
+    useEffect(() => {
+        getIntegrationAppData(debouncedSearchTerm)
+    }, [debouncedSearchTerm, getIntegrationAppData])
+
+    useEffect(() => {
         getCategories()
     }, [])
 
@@ -162,12 +178,29 @@ export default function IntegrationAppList() {
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">Integration Apps</h2>
+
+            </div>
+
+            <div className="flex items-center justify-between w-full">
+                <div className="relative w-1/4">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search integration apps..."
+                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                </div>
                 <Button
                     onClick={onAdd}
                     className="bg-blue-600 text-white cursor-pointer hover:bg-blue-700"
                 >
                     Add New App
                 </Button>
+
             </div>
 
             {integrationAppData.length === 0 ? (
@@ -221,17 +254,17 @@ export default function IntegrationAppList() {
                                     <TableCell className="text-sm text-gray-600">
                                         {app?.category?.name || '-'}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="capitalize">
                                         <Badge variant={getStatusVariant(app?.status)}>
                                             {app?.status || 'N/A'}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="capitalize">
                                         <Badge variant={getTypeVariant(app?.type)}>
                                             {app?.type || 'N/A'}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="capitalize">
                                         <Badge variant={getAccessPlanVariant(app?.accessPlan)}>
                                             {app?.accessPlan || 'N/A'}
                                         </Badge>

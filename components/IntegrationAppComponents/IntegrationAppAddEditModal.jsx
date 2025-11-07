@@ -9,7 +9,8 @@ import { ApiPost, ApiPut } from '@/Utils/axiosFunctions'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import CreatableSelect from 'react-select/creatable'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, X } from 'lucide-react'
+import { getImageUrl } from '@/Utils/commonFunctions'
 
 const BaseURL = process.env.NEXT_PUBLIC_API_URL
 
@@ -103,14 +104,12 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                 setValue('meta', templateData?.meta || null)
                 setValue('appType', templateData?.appType || '')
                 setValue('type', templateData?.type || 'basic')
-                // Convert configKey object to array of field names
                 if (templateData?.configKey && typeof templateData?.configKey === 'object') {
                     const fieldNames = Object.keys(templateData?.configKey)
                     setConfigFields(fieldNames.map(name => ({ value: name, label: name })))
                 } else {
                     setConfigFields([])
                 }
-                // Set articles
                 if (templateData?.articles && Array.isArray(templateData?.articles) && templateData?.articles.length > 0) {
                     setArticles(templateData?.articles)
                     setValue('articles', templateData?.articles)
@@ -121,7 +120,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                 setLogoPreview(templateData?.logo || '')
                 setThumbnailPreview(templateData?.thumbnail || '')
             } else {
-                // Clean up any existing object URLs
                 if (logoPreview && logoPreview.startsWith('blob:')) {
                     URL.revokeObjectURL(logoPreview)
                 }
@@ -155,7 +153,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
 
             if (response?.data?.success && response?.data?.data?.[0]) {
                 const fileName = response?.data?.data?.[0]
-                // Return just the filename
                 return fileName
             }
             throw new Error('Upload failed')
@@ -169,10 +166,8 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
         const file = e.target.files?.[0]
         if (file) {
             setLogoFile(file)
-            // Create preview URL from file object
             const previewUrl = URL.createObjectURL(file)
             setLogoPreview(previewUrl)
-            // Set a temporary value to pass validation (will be replaced with actual URL on submit)
             setValue('logo', 'file_selected', { shouldValidate: true })
         }
     }
@@ -181,30 +176,42 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
         const file = e.target.files?.[0]
         if (file) {
             setThumbnailFile(file)
-            // Create preview URL from file object
             const previewUrl = URL.createObjectURL(file)
             setThumbnailPreview(previewUrl)
-            // Set a temporary value to pass validation (will be replaced with actual URL on submit)
             setValue('thumbnail', 'file_selected', { shouldValidate: true })
         }
     }
 
-    // Helper function to extract filename from URL
+    const handleRemoveLogo = () => {
+        if (logoPreview && logoPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(logoPreview)
+        }
+        setLogoFile(null)
+        setLogoPreview('')
+        setValue('logo', '', { shouldValidate: true })
+    }
+
+    const handleRemoveThumbnail = () => {
+        if (thumbnailPreview && thumbnailPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(thumbnailPreview)
+        }
+        setThumbnailFile(null)
+        setThumbnailPreview('')
+        setValue('thumbnail', '', { shouldValidate: true })
+    }
+
     const extractFilename = (url) => {
         if (!url) return null
         if (url === 'file_selected') return null
-        // If it's already just a filename (no http/https), return as is
         if (!url.startsWith('http://') && !url.startsWith('https://')) {
             return url
         }
-        // Extract filename from URL (e.g., "https://.../uploads/files-xxx.png" -> "files-xxx.png")
         const parts = url.split('/')
         return parts[parts.length - 1] || null
     }
 
     const onSubmit = async (data) => {
         try {
-            // Upload images if new files are selected
             let logoFilename = data.logo === 'file_selected' ? null : extractFilename(data.logo)
             let thumbnailFilename = data.thumbnail === 'file_selected' ? null : extractFilename(data.thumbnail)
 
@@ -275,7 +282,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
     }
 
     const handleClose = () => {
-        // Clean up object URLs to prevent memory leaks
         if (logoPreview && logoPreview.startsWith('blob:')) {
             URL.revokeObjectURL(logoPreview)
         }
@@ -304,7 +310,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
 
                         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Logo Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Logo *
@@ -316,8 +321,15 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     {logoPreview && (
-                                        <div className="mt-2">
-                                            <img src={logoPreview} alt="Logo preview" className="w-20 h-20 object-cover rounded" />
+                                        <div className="mt-2 relative inline-block">
+                                            <img src={getImageUrl(logoPreview)} alt="Logo preview" className="w-20 h-20 object-cover rounded" />
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveLogo}
+                                                className="absolute -top-1 cursor-pointer -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     )}
                                     {errors.logo && (
@@ -325,7 +337,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Thumbnail Upload */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Thumbnail *
@@ -337,8 +348,15 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     />
                                     {thumbnailPreview && (
-                                        <div className="mt-2">
-                                            <img src={thumbnailPreview} alt="Thumbnail preview" className="w-20 h-20 object-cover rounded" />
+                                        <div className="mt-2 relative inline-block">
+                                            <img src={getImageUrl(thumbnailPreview)} alt="Thumbnail preview" className="w-20 h-20 object-cover rounded" />
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveThumbnail}
+                                                className="absolute -top-1 cursor-pointer -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
                                         </div>
                                     )}
                                     {errors.thumbnail && (
@@ -346,7 +364,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* App Name */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         App Name *
@@ -362,7 +379,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Author */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Author *
@@ -378,7 +394,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* App Key */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         App Key *
@@ -394,7 +409,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* App Code */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         App Code *
@@ -410,7 +424,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Summary */}
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Summary *
@@ -426,7 +439,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Category */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Category *
@@ -447,7 +459,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Access Plan */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Access Plan *
@@ -466,7 +477,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Status */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Status *
@@ -484,7 +494,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* App Type */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         App Type *
@@ -500,7 +509,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Type */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Type *
@@ -517,7 +525,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Config Fields (only for advanced) */}
                                 {watchedType === 'advanced' && (
                                     <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -557,7 +564,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     </div>
                                 )}
 
-                                {/* Install URL */}
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Install URL *
@@ -573,7 +579,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     )}
                                 </div>
 
-                                {/* Articles */}
                                 <div className="md:col-span-2">
                                     <div className="flex items-center justify-between mb-2">
                                         <label className="block text-sm font-medium text-gray-700">
@@ -645,7 +650,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     </p>
                                 </div>
 
-                                {/* Staff Pick Order - only show if Staff Pick is checked */}
                                 {watchedStaffPick && (
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -660,7 +664,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     </div>
                                 )}
 
-                                {/* Meta */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
                                         Meta
@@ -673,7 +676,6 @@ export default function IntegrationAppAddEditModal({ isOpen, setIsOpen, template
                                     />
                                 </div>
 
-                                {/* Checkboxes */}
                                 <div className="md:col-span-2 space-y-2">
                                     <label className="flex items-center space-x-2">
                                         <input

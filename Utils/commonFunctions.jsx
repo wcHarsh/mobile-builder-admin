@@ -41,8 +41,8 @@ export const Logout = () => {
 }
 
 export function getImageUrl(imagePath) {
-    if (!imagePath) return ''; // no image provided
-    return imagePath.startsWith('http')
-        ? imagePath
-        : `${BaseURL}uploads/${imagePath}`;
+    if (!imagePath) return '';
+    if (imagePath.startsWith('blob:')) return imagePath;
+    if (imagePath.startsWith('http')) return imagePath;
+    return `${BaseURL}uploads/${imagePath}`;
 }
