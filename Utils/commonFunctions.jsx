@@ -1,3 +1,4 @@
+export const BaseURL = "https://20dqgn6p-3000.inc1.devtunnels.ms/";
 export const Logout = () => {
     console.log('logoutA')
     console.log('typeof window:', typeof window)
@@ -37,4 +38,11 @@ export const Logout = () => {
 
     // Redirect to login page
     window.location.href = '/login';
+}
+
+export function getImageUrl(imagePath) {
+    if (!imagePath) return ''; // no image provided
+    return imagePath.startsWith('http')
+        ? imagePath
+        : `${BaseURL}uploads/${imagePath}`;
 }
